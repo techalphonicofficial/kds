@@ -1,54 +1,51 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-export default function Carousel() {
-  const slides = [
-    {
-      src: "/industry.png",
-      alt: "Industrial Manpower",
-      title: "Elevate Your Operations with Professional Industrial Staffing",
-      description: "Get verified machine operators, manufacturing technicians, and factory workers deployed to your site within 24-48 hours with full legal compliance.",
-      // buttonText: "Book a free consultation",
-    },
-    {
-      src: "/construction.png",
-      alt: "Construction Labor",
-      title: "Skilled Construction Workforce for Projects of Any Scale",
-      description: "From experienced masons and electricians to skilled supervisors, we provide safety-compliant and trained labor to keep your timeline on track.",
-      // buttonText: "Hire Skilled Workers",
-    },
-    {
-      src: "/security.png",
-      alt: "Security Staffing",
-      title: "PSARA Certified Security Personnel for Complete Safety",
-      description: "Protect your commercial, industrial, and residential premises with our professionally trained and fire-safety certified security guards.",
-      // buttonText: "Request Security Guards",
-    },
-  ];
-
+import { API_URL } from '@/config/api';
+import { IMAGE_URL } from '@/config/api';
+export default function Carousel({ data }) {
+  
+  const slides = data?.carousel_json || [];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Auto-play interval
   useEffect(() => {
+
+    if (!slides.length) return;
+
     const timer = setInterval(() => {
-      handleNext();
-    }, 6000); // Change slide every 6 seconds
+
+      setCurrentIndex(
+        prev => prev === slides.length - 1 ? 0 : prev + 1
+      );
+
+    }, 6000);
+
 
     return () => clearInterval(timer);
-  }, [currentIndex]);
+
+
+  }, [slides.length]);
+
+
 
   const handlePrev = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? slides.length - 1 : prevIndex - 1
+
+    setCurrentIndex(
+      prev => prev === 0 ? slides.length - 1 : prev - 1
     );
-  };
+
+  }
+
+
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === slides.length - 1 ? 0 : prevIndex + 1
+
+    setCurrentIndex(
+      prev => prev === slides.length - 1 ? 0 : prev + 1
     );
-  };
+
+  }
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[#06111e] group">
@@ -64,9 +61,9 @@ export default function Carousel() {
           >
             {/* Background Image - Local high-resolution image */}
             <img
-              src={slide.src}
+              src={`${IMAGE_URL}/${slide.image}`}
               className="block w-full h-full object-cover"
-              alt={slide.alt}
+              alt={slide.alt_text || "banner"}
             />
             {/* Gradient overlay to ensure text is fully readable and images blend nicely */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/30 z-20" />
@@ -76,9 +73,9 @@ export default function Carousel() {
             <div className="absolute inset-0 z-30 flex items-center">
               <div className="container mx-auto px-6 md:px-12 lg:px-24 max-w-7xl">
                 <div className="max-w-4xl space-y-6 text-left">
-                  <h1 className="text-4xl text-increase font-black text-white leading-[1.1] tracking-tight drop-shadow-md font-sans">
+                  <h2 className="text-4xl text-increase font-black text-white leading-[1.1] tracking-tight drop-shadow-md font-sans">
                     {slide.title}
-                  </h1>
+                  </h2>
                   <p className="text-gray-200 text-base md:text-lg lg:text-xl font-normal leading-relaxed max-w-2xl drop-shadow">
                     {slide.description}
                   </p>

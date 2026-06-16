@@ -13,7 +13,8 @@ const projectEmoji = {
   Logistics: "📦",
 };
 
-export default function ProjectCard({ project, index }) {
+export default function ProjectCard({ project }) {
+  console.log("caseStudy", project);
   const emoji = projectEmoji[project.category] || "🏗️";
   console.log("projects", project);
   return (
@@ -34,7 +35,7 @@ export default function ProjectCard({ project, index }) {
           <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0d1117]/80 backdrop-blur-md border border-[#1565c0]/30">
             <Tag size={12} className="text-[#1565c0]" />
             <span className="text-[10px] font-black uppercase tracking-widest text-[#1565c0]">
-              {project.category}
+              {project.icon}
             </span>
           </div>
         </div>
@@ -44,14 +45,14 @@ export default function ProjectCard({ project, index }) {
           {/* Title */}
           <h3
             className=" font-black text-gray-900 dark:text-white leading-[1.1] my-3 tracking-tight group-hover:text-[#1565c0] transition-colors duration-500"
-            style={{ fontFamily: "Outfit, sans-serif",fontSize:'20px' }}
+            style={{ fontFamily: "Outfit, sans-serif", fontSize: '20px' }}
           >
-            {project.title}
+            {project.key}
           </h3>
 
           {/* Description */}
           <p className="text-gray-600 dark:text-[#8b949e] text-sm leading-relaxed mb-3 flex-1 line-clamp-3 italic transition-colors duration-500">
-            &ldquo;{project.description}&rdquo;
+            &ldquo;{project.value}&rdquo;
           </p>
 
           {/* View Details clickable link appearance */}

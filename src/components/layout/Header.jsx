@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { solutionsData, technologyData } from "@/lib/solutionsAndTechData";
+
 
 const navLinks = [
   { href: "/solutions", label: "Solutions", hasMegaMenu: true },
@@ -112,32 +113,89 @@ const industryIcons = {
   "Technology": Radio,
 };
 
-const getMenuData = (label) => {
-  if (label === "Solutions") return {
-    header: "Our Solutions",
-    viewAllLink: "/solutions",
-    viewAllText: "Explore All Solutions →",
-    data: solutionsData,
-    baseSlug: "solutions"
-  };
-  if (label === "Technology and Operations") return {
-    header: "Technology & Operations",
-    viewAllLink: "/technology-and-operations",
-    viewAllText: "Explore Technology & Operations →",
-    data: technologyData,
-    baseSlug: "technology-and-operations"
-  };
-  if (label === "Industries") return {
-    header: "Industries We Serve",
-    viewAllLink: "/industries",
-    viewAllText: "Explore All Industries →",
-    data: industriesData,
-    baseSlug: "industries"
-  };
-  return null;
+const formatTitle = (title) => {
+  if (!title) return "";
+  if (title.includes(" ") || /[A-Z]/.test(title)) return title;
+  return title
+    .split("-")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 };
 
-export default function Header({ services, siteName }) {
+export default function Header({ services, solutions = [], technologies = [], industries = [], siteName }) {
+  const formattedSolutions = useMemo(() => {
+    if (!solutions || solutions.length === 0) return solutionsData;
+    const groups = {};
+    solutions.forEach(item => {
+      const catTitle = item.category?.title || "Solutions";
+      if (!groups[catTitle]) {
+        groups[catTitle] = [];
+      }
+      groups[catTitle].push({
+        name: formatTitle(item.title),
+        slug: item.slug
+      });
+    });
+    return Object.keys(groups).map(title => ({
+      category: title,
+      items: groups[title]
+    }));
+  }, [solutions]);
+
+  const formattedTechnologies = useMemo(() => {
+    if (!technologies || technologies.length === 0) return technologyData;
+    const groups = {};
+    technologies.forEach(item => {
+      const catTitle = item.category?.title || "Technology & Operations";
+      if (!groups[catTitle]) {
+        groups[catTitle] = [];
+      }
+      groups[catTitle].push({
+        name: formatTitle(item.title),
+        slug: item.slug
+      });
+    });
+    return Object.keys(groups).map(title => ({
+      category: title,
+      items: groups[title]
+    }));
+  }, [technologies]);
+
+  const formattedIndustries = useMemo(() => {
+    if (!industries || industries.length === 0) return industriesData;
+    return industries.map(cat => ({
+      category: cat.name,
+      items: (cat.industries || []).map(ind => ({
+        name: ind.name,
+        slug: ind.slug
+      }))
+    }));
+  }, [industries]);
+
+  const getMenuData = (label) => {
+    if (label === "Solutions") return {
+      header: "Our Solutions",
+      viewAllLink: "/solutions",
+      viewAllText: "Explore All Solutions →",
+      data: formattedSolutions,
+      baseSlug: "solutions"
+    };
+    if (label === "Technology and Operations") return {
+      header: "Technology & Operations",
+      viewAllLink: "/technology-and-operations",
+      viewAllText: "Explore Technology & Operations →",
+      data: formattedTechnologies,
+      baseSlug: "technology-and-operations"
+    };
+    if (label === "Industries") return {
+      header: "Industries We Serve",
+      viewAllLink: "/industries",
+      viewAllText: "Explore All Industries →",
+      data: formattedIndustries,
+      baseSlug: "industries"
+    };
+    return null;
+  };
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
   const [scrolled, setScrolled] = useState(false);
@@ -228,15 +286,13 @@ export default function Header({ services, siteName }) {
               />
             </div>
           </Link>
-
-          <nav className="hidden lg:flex items-center gap-1" ref={navRef} >
+          <nav className="hidden lg:flex items-center justify-center gap-1 flex-1" ref={navRef}>
             {navLinks.filter(l => l.href !== "/contact").map((link) =>
               link.hasMegaMenu ? (
                 <div
                   key={link.href}
                   onMouseEnter={() => handleMouseEnter(link.label)}
-                  onMouseLeave={handleMouseLeave}
-                >
+                  onMouseLeave={handleMouseLeave}>
                   <button
                     className={clsx(
                       "flex items-center gap-2 px-2 py-2 rounded-lg !text-[14px] whitespace-nowrap !lg:text-[10px] !xl:text-[14px] font-bold uppercase tracking-[0.12em] transition-all duration-300",
@@ -280,28 +336,28 @@ export default function Header({ services, siteName }) {
 
                           <div className="grid grid-cols-4 gap-6">
                             {menuInfo.data.map((category, idx) => {
-  const IconComponent = solutionIcons[category.category] || technologyIcons[category.category] || industryIcons[category.category];
+                              const IconComponent = solutionIcons[category.category] || technologyIcons[category.category] || industryIcons[category.category];
 
-                            return(
-                              <div key={idx} className="space-y-3">
-                                <h3 className=" font-black text-gray-800 dark:text-white uppercase tracking-wider border-b border-gray-100 dark:border-white/10 pb-2" style={{ fontSize: '18px' }}>
-                                  {category.category}
-                                  {IconComponent && <IconComponent size={20} className="inline-block ms-2 text-[#1565c0]" />}
-                                </h3>
-                                <div className="space-y-2">
-                                  {category.items.map((item) => (
-                                    <Link
-                                      key={item.slug}
-                                      href={`/${menuInfo.baseSlug}/${item.slug}`}
-                                      className="flex items-center justify-between px-3 py-2 mb-2 rounded-xl text-[14px] font-semibold text-gray-600 dark:text-gray-400 hover:text-[#1565c0] dark:hover:text-[#90caf9] hover:bg-[#1565c0]/5 dark:hover:bg-[#1565c0]/10 transition-all group/item"
-                                    >
-                                      {item.name}
-                                      <div className="w-1.5 h-1.5 rounded-full bg-[#1565c0] opacity-0 group-hover/item:opacity-100 transition-opacity" />
-                                    </Link>
-                                  ))}
-                                </div>
-                              </div>)
-                  })}
+                              return (
+                                <div key={idx} className="space-y-3">
+                                  <h3 className=" font-black text-gray-800 dark:text-white uppercase tracking-wider border-b border-gray-100 dark:border-white/10 pb-2" style={{ fontSize: '18px' }}>
+                                    {category.category}
+                                    {IconComponent && <IconComponent size={20} className="inline-block ms-2 text-[#1565c0]" />}
+                                  </h3>
+                                  <div className="space-y-2">
+                                    {category.items.map((item) => (
+                                      <Link
+                                        key={item.slug}
+                                        href={`/${menuInfo.baseSlug}/${item.slug}`}
+                                        className="flex items-center justify-between px-3 py-2 mb-2 rounded-xl text-[14px] font-semibold text-gray-600 dark:text-gray-400 hover:text-[#1565c0] dark:hover:text-[#90caf9] hover:bg-[#1565c0]/5 dark:hover:bg-[#1565c0]/10 transition-all group/item"
+                                      >
+                                        {item.name}
+                                        <div className="w-1.5 h-1.5 rounded-full bg-[#1565c0] opacity-0 group-hover/item:opacity-100 transition-opacity" />
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </div>)
+                            })}
                           </div>
 
                           <div className="mt-3 pt-3 border-t border-gray-100 dark:border-white/5">

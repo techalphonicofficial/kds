@@ -4,20 +4,71 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import Button from "@/components/ui/Button";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import ServiceLocationTabs from "@/components/ui/ServiceLocationTabs";
+import { API_ENDPOINTS, IMAGE_URL } from "@/config/api";
+import { getData } from "@/lib/data";
+import AboutHero from "@/components/common/herosection/AboutHero";
+import { getPageSEO } from "@/lib/metadata";
 
-export const metadata = {
-  title: "Services",
-  description:
-    "Explore KDS International's full range of services: testing & inspection, quality assurance, global sourcing, logistics solutions, precision catalog, and project management.",
-};
+export async function generateMetadata() {
+  const page = await getPageSEO("services");
+
+  return {
+    title: page?.meta_title || "KDS International",
+    description: page?.meta_description || "",
+    keywords: page?.meta_keywords?.split(",") || [],
+    openGraph: {
+      title: page?.meta_title,
+      description: page?.meta_description,
+      images: [{ url: `${IMAGE_URL}/${page.image}` }],
+    },
+    other: {
+      "script:type": JSON.stringify(page?.meta_schema || []),
+    },
+  };
+}
 
 export default async function ServicesPage() {
   const data = await getServerData();
+  const services = await getData(API_ENDPOINTS.SERVICES)
+  const page = await getPageSEO("services");
 
+  const sections = services.data.sections.reduce(
+    (acc, section) => {
+      acc[section.section_key] = section;
+      return acc;
+    },
+    {}
+  );
+
+  const hero_section = sections.hero_section;
+  const service = sections.service_list
+  const serviceData = service?.extra?.map((item, index) => ({ id: index + 1, slug: item.url_path?.split("/").filter(Boolean).pop() || "service", title: item.key || "", shortDesc: item.value || "", icon: item.icon || "⚙️", features: item.subtitle?.split(" ").slice(0, 5) || [] })) || [];
+  const last_section = sections.last_section;
+  const workflowData =
+    last_section?.extra?.map((item, index) => ({
+      step: String(index + 1).padStart(2, "0"),
+      title: item.key || "",
+      desc: item.value || "",
+    })) || [];
+
+  const point_section = sections.point_section;
+  const industries =
+    point_section?.points?.map((item, index) => ({
+      id: index + 1,
+      name: item.point?.trim() || ""
+    })) || [];
   return (
     <main className="overflow-hidden dark:bg-[#0d1117] transition-colors duration-500">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            page?.meta_schema?.[0]?.schema || {}
+          )
+        }}
+      />
       {/* ─── HERO SECTION ──────────────────────────────────────────────── */}
-      <section className="relative  mt-5 pt-5 pb-5 hero-bg overflow-hidden ">
+      {/* <section className="relative  mt-5 pt-5 pb-5 hero-bg overflow-hidden ">
         <div className="absolute inset-0 hero-grid opacity-30" />
         <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#1565c0]/15 glow-blob rounded-full" />
 
@@ -58,7 +109,8 @@ export default async function ServicesPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
+      <AboutHero data={hero_section} />
 
       {/* ─── TRUST STRIP ──────────────────────────────────────────────── */}
       <section className="bg-gray-50 dark:bg-[#161b22] border-y border-gray-200 dark:border-white/5 py-10 relative z-10 transition-colors duration-500">
@@ -85,16 +137,17 @@ export default async function ServicesPage() {
       {/* ─── SERVICES GRID ────────────────────────────────────────── */}
       <section className="section-padding relative dark:bg-[#0d1117] transition-colors duration-500">
         <div className="container mx-auto px-6 max-w-7xl">
-          <div className="text-center mb-4">
+          <div className="text-center mb-4 ">
             <SectionTitle
+              data={service}
               label="Our Services"
               title="End-to-End Industrial Excellence"
               subtitle="We provide a comprehensive ecosystem of services designed to optimize speed, quality, and cost across your global operations."
               align="center"
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {data.services.map((service) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3  !pt-4">
+            {serviceData.map((service) => (
               <ServiceCard key={service.id} service={service} />
             ))}
           </div>
@@ -102,7 +155,7 @@ export default async function ServicesPage() {
       </section>
 
 
-       {/* ─── LOCATIONS WE SERVE ───────────────────────────────────── */}
+      {/* ─── LOCATIONS WE SERVE ───────────────────────────────────── */}
       <section className="section-padding bg-gray-50 dark:bg-[#161b22]/30 relative overflow-hidden transition-colors duration-500">
         <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-[#1565c0]/5 to-transparent pointer-events-none" />
         <div className="container mx-auto px-6 max-w-7xl relative z-10">
@@ -124,6 +177,7 @@ export default async function ServicesPage() {
         <div className="container mx-auto px-6 max-w-8xl">
           <div className="text-center mb-20">
             <SectionTitle
+              data={last_section}
               label="Our Process"
               title="The KDS Workflow"
               subtitle="A transparent, data-driven methodology that ensures consistency and precision at every stage of the project."
@@ -131,50 +185,47 @@ export default async function ServicesPage() {
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              {
-                step: "01",
-                title: "Intelligence",
-                desc: "We perform a deep-dive analysis of your requirements and market conditions.",
-              },
-              {
-                step: "02",
-                title: "Architecture",
-                desc: "Our engineers design a bespoke solution with rigorous quality and risk mapping.",
-              },
-              {
-                step: "03",
-                title: "Deployment",
-                desc: "Precision execution across our global network with real-time tracking.",
-              },
-              {
-                step: "04",
-                title: "Optimization",
-                desc: "Continuous feedback loops and quality audits to drive maximum efficiency.",
-              },
-            ].map((item, i) => (
+
+            {workflowData.map((item, i) => (
+
               <div key={item.step} className="group cursor-default">
-                <div className="bg-white dark:bg-transparent premium-glass p-3 rounded-3xl border border-gray-200 dark:border-white/5 group-hover:border-[#1565c0]/40 dark:group-hover:border-[#1565c0]/40 transition-all duration-500 h-full relative overflow-hidden">
-                  <div className="absolute -top-3 -right-3 text-7xl font-black text-gray-100 dark:text-white/5 group-hover:text-[#1565c0]/10 transition-colors duration-500 pointer-events-none">
+
+                <div className="bg-white dark:bg-transparent premium-glass p-3 rounded-3xl border border-gray-200 dark:border-white/5 group-hover:border-[#1565c0]/40 transition-all duration-500 h-full relative overflow-hidden">
+
+
+                  <div className="absolute -top-3 -right-3 text-7xl !p-3 font-black text-gray-300 dark:text-white/5 group-hover:text-[#1565c0]/10 transition-colors duration-500 pointer-events-none">
                     {item.step}
                   </div>
+
+
                   <h3
                     className="text-2xl font-black text-gray-900 dark:text-white mb-4 tracking-tight group-hover:text-[#1565c0] transition-colors duration-500"
                     style={{ fontFamily: "Outfit, sans-serif" }}
                   >
                     {item.title}
                   </h3>
+
+
                   <p className="text-gray-600 dark:text-[#8b949e] leading-relaxed italic mb-3 group-hover:text-gray-900 dark:group-hover:text-white transition-colors duration-500">
                     &ldquo;{item.desc}&rdquo;
                   </p>
-                  <div className="w-10 h-1 bg-gray-200 dark:bg-[#161b22] group-hover:w-full group-hover:bg-[#1565c0] dark:group-hover:bg-[#1565c0] transition-all duration-500 rounded-full" />
+
+
+                  <div className="w-10 h-1 bg-gray-200 dark:bg-[#161b22] group-hover:w-full group-hover:bg-[#1565c0] transition-all duration-500 rounded-full" />
+
                 </div>
-                {i < 3 && (
-                  <div className="hidden lg:block absolute top-1/2 -right-4 w-8 h-px bg-gray-300 dark:bg-white/10 z-0 transition-colors duration-500" />
+
+
+                {i < workflowData.length - 1 && (
+                  <div className="hidden lg:block absolute top-1/2 -right-4 w-8 h-px bg-gray-300 dark:bg-white/10 z-0" />
                 )}
+
               </div>
+
             ))}
+
           </div>
+
         </div>
       </section>
 
@@ -184,13 +235,14 @@ export default async function ServicesPage() {
           <div className="grid grid-cols-1 md:grid-cols-5 lg:grid-cols-5 gap-4 items-">
             <div className="lg:col-span-3 col-span-5" >
               <SectionTitle
+                data={point_section}
                 label="Industries"
                 title="Vertical Solutions"
                 subtitle="We don't believe in one-size-fits-all. Our experts bring niche knowledge to solve sector-specific challenges."
               />
 
               <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {data.industries.map((industry) => (
+                {industries.map((industry) => (
                   <div
                     key={industry.id}
                     className="flex items-center gap-4 group"
@@ -200,7 +252,7 @@ export default async function ServicesPage() {
                       className="text-gray-900 dark:text-white font-bold text-lg group-hover:text-[#1565c0] transition-colors duration-500"
                       style={{ fontFamily: "Outfit, sans-serif" }}
                     >
-                      {industry.name  }
+                      {industry.name}
                     </span>
                   </div>
                 ))}
@@ -212,19 +264,19 @@ export default async function ServicesPage() {
               <div className="absolute top-0 right-0 w-64 h-64 bg-[#1565c0]/10 blur-[100px] pointer-events-none" />
               <h3
                 className="text-3xl font-black text-gray-900 dark:text-white mb-3 leading-tight tracking-tighter transition-colors duration-500"
-                style={{ fontFamily: "Outfit, sans-serif" , lineHeight:"38px" }}
+                style={{ fontFamily: "Outfit, sans-serif", lineHeight: "38px" }}
               >
                 Scalable Infrastructure <br />
                 <span className="text-[#1565c0]">For Global Industry.</span>
               </h3>
               <div className="space-y-3">
-                {data.stats.slice(0, 3).map((stat) => (
+                {point_section?.extra.slice(0, 3).map((stat) => (
                   <div
-                    key={stat.id}
+                    key={stat.key}
                     className="flex items-center justify-between border-b border-gray-100 dark:border-white/5 pb-4 transition-colors duration-500"
                   >
                     <span className="text-gray-600 dark:text-[#8b949e] font-medium transition-colors duration-500">
-                      {stat.label}
+                      {stat.key}
                     </span>
                     <span
                       className="text-2xl font-black text-gray-900 dark:text-white transition-colors duration-500"

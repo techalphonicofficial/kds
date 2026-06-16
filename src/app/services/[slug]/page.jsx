@@ -2,6 +2,9 @@
 import { getServerData } from "@/lib/data";
 import { notFound } from "next/navigation";
 import ServiceHero from "@/components/ui/ServiceHero";
+import { API_ENDPOINTS } from "@/config/api";
+import { getBySlug } from "@/lib/data";
+import { IMAGE_URL } from "@/config/api";
 import {
   CheckCircle,
   ArrowRight,
@@ -25,61 +28,110 @@ import ServiceDetailLocationTabs from "@/components/ui/ServiceDetailLocationTabs
 import HeroBanner from "@/components/ui/heroBanner";
 
 export async function generateMetadata({ params }) {
-
   const resolvedParams = await params;
-  console.log("generateMetadata - slug:", resolvedParams?.slug);
+  const { slug } = resolvedParams;
 
-  const data = await getServerData();
-  console.log("generateMetadata - available slugs:", data.services.map(s => s.slug));
-
-  const service = data.services.find((s) => s.slug === resolvedParams.slug);
-  console.log("generateMetadata - found service:", service?.title);
-
-  if (!service) {
-    return {
-      title: "Service Not Found",
-      description: "The requested service could not be found."
-    };
-  }
-
-  return {
-    title: `${service.title} | KDS International`,
-    description: service.shortDesc,
-  };
-}
-
-export async function generateStaticParams() {
   try {
-    const data = await getServerData();
-    console.log("generateStaticParams - generating for slugs:", data.services.map(s => s.slug));
-    return data.services.map((service) => ({
-      slug: service.slug,
-    }));
-  } catch (error) {
-    console.error("Error generating static params:", error);
-    return [];
-  }
-}
+    const response = await getBySlug(API_ENDPOINTS.SERVICES_SLUG, slug);
+    const serviceData = response?.data;
 
-export default async function ServiceDetailPage({ params }) {
-  try {
-    const resolvedParams = await params;
-    // console.log("ServiceDetailPage - slug:", resolvedParams?.slug);
+    // Load fallback data from getServerData
+    const localData = await getServerData();
+    const localService = localData.services?.find((s) => s.slug === slug);
 
-    const data = await getServerData();
-    // console.log("ServiceDetailPage - all slugs:", data.services.map(s => s.slug));
-
-    const service = data.services.find((s) => s.slug === resolvedParams.slug);
-    // console.log("ServiceDetailPage - found service:", service?.title);
-
-    if (!service) {
-      // console.log("ServiceDetailPage - service not found, triggering 404");
-      notFound();
+    if (!serviceData && !localService) {
+      return { title: "Service Not Found | KDS International" };
     }
 
-    const otherServices = data.services
-      .filter((s) => s.id !== service.id)
-      .slice(0, 3);
+    const title = serviceData?.title || localService?.title || slug;
+    const metaTitle = serviceData?.meta_title || localService?.meta_title || `${title} | KDS International`;
+    const metaDescription = serviceData?.meta_description || localService?.meta_description || localService?.shortDesc || "";
+    const metaKeyword = serviceData?.meta_keyword || localService?.meta_keyword || `${title}, manpower services, staffing solutions`;
+    const imagePath = serviceData?.image || localService?.image || "/services/og-default.jpg";
+    const imageUrl = imagePath.startsWith("http")
+      ? imagePath
+      : imagePath.startsWith("/")
+        ? `${IMAGE_URL}${imagePath}`
+        : `${IMAGE_URL}/${imagePath}`;
+
+    return {
+      title: metaTitle,
+      description: metaDescription,
+      keywords: metaKeyword,
+      openGraph: {
+        title: metaTitle,
+        description: metaDescription,
+        images: [{ url: imageUrl }],
+      },
+      other: {
+        "script:type": typeof serviceData?.meta_schema === "string"
+          ? serviceData.meta_schema
+          : JSON.stringify(serviceData?.meta_schema || []),
+      },
+    };
+  } catch (error) {
+    console.error("Error generating service metadata:", error);
+    return { title: "Service Solutions | KDS International" };
+  }
+}
+
+// export async function generateStaticParams() {
+//   try {
+//     const data = await getServerData();
+//     console.log("generateStaticParams - generating for slugs:", data.services.map(s => s.slug));
+//     return data.services.map((service) => ({
+//       slug: service.slug,
+//     }));
+//   } catch (error) {
+//     console.error("Error generating static params:", error);
+//     return [];
+//   }
+// }
+
+export default async function ServiceDetailPage({ params }) {
+
+
+  try {
+
+    const { slug } = await params;
+
+
+    const response = await getBySlug(API_ENDPOINTS.SERVICES_SLUG, slug);
+    const sections = response.data.sections.reduce(
+      (acc, section) => {
+        acc[section.section_key] = section;
+        return acc;
+      },
+      {}
+    );
+
+
+    const hero_section = sections.hero_section;
+    const content = sections.content_key;
+    const benefit = sections.benefits;
+    const advantage = sections.Advantage
+    const related = sections.related_service;
+    const stats = sections.why_choose;
+    const needService = sections.need_service;
+    const needManpower = sections.Need_manpower;
+    
+
+    const locations = (response.data.states || []).map((stateItem) => ({
+      state: stateItem.state?.slug || stateItem.slug,
+      stateLabel: stateItem.state?.name || stateItem.title,
+      cities: (stateItem.cities || []).map((cityItem) => ({
+        slug: cityItem.city?.slug || cityItem.slug,
+        label: cityItem.city?.name || cityItem.alt_text || ""
+      }))
+    }));
+
+    const service = {
+      title: hero_section?.title || "",
+      slug: slug,
+      locations: locations
+    };
+
+
 
     const tableContents = [
       { id: "overview", label: "Overview" },
@@ -91,43 +143,18 @@ export default async function ServiceDetailPage({ params }) {
 
     return (
       <main className="scroll-smooth overflow-x-clip bg-white dark:bg-[#0d1117] transition-colors duration-500">
-        {/* ─── HERO SECTION ──────────────────────────────────────────────── */}
-        {/* <section className="relative  mt-5 pt-5 pb-5 hero-bg overflow-hidden">
-          <div className="absolute inset-0 hero-grid opacity-30" />
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#1565c0]/10 glow-blob rounded-full blur-[120px]" />
+        {response.data?.meta_schema?.[0]?.schema && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: typeof response.data.meta_schema[0].schema === "string"
+                ? response.data.meta_schema[0].schema
+                : JSON.stringify(response.data.meta_schema[0].schema)
+            }}
+          />
+        )}
 
-          <div className="container mx-auto mt-5 px-6 max-w-7xl relative z-10">
-            <Link
-              href="/services"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full premium-glass border-[#1565c0]/70 mb-8 animate-fade-in-up hover:border-[#1565c0] transition-colors group"
-            >
-              <ArrowRight
-                size={14}
-                className="group-hover:-translate-x-1 transition-transform rotate-180 text-white"
-              />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1565c0]">
-                Back to All Services
-              </span>
-            </Link>
-
-            <div
-              className="max-w-4xl animate-fade-in-up transition-colors duration-500"
-              style={{ animationDelay: "0.1s" }}
-            >
-              <h1
-                className="text-5xl md:text-7xl font-black !text-gray-200 dark:text-white mb-8 leading-[1.1] tracking-tighter transition-colors duration-500"
-                style={{ fontFamily: "Outfit, sans-serif" }}
-              >
-                {service.title}
-              </h1>
-              <p className="text-gray-300 dark:text-[#8b949e] text-lg md:text-2xl leading-relaxed max-w-3xl italic transition-colors duration-500">
-                {service.shortDesc}
-              </p>
-            </div>
-          </div>
-        </section> */}
-        {/* <HeroBanner  service={service} /> */}
-        <ServiceHero service={service} />
+        <ServiceHero service={hero_section} />
 
         {/* <section className="relative mt-5 pt-5 pb-5 hero-bg overflow-hidden">
           <div className="absolute inset-0 hero-grid opacity-30" />
@@ -299,34 +326,15 @@ export default async function ServiceDetailPage({ params }) {
           </div>
         </section> */}
 
-        <section>
-          
-        </section>
-
         {/* ─── CONTENT SECTION ─────────────────────────────────────────── */}
         <section className=" relative  flex flex-row mt-16 lg:mt-16">
 
-          
-
           {/* table of contents */}
           <div className="lg:col-span-3 hidden lg:block">
-
             <div className="sticky top-28">
 
               {/* Wrapper */}
               <div className=" p-4  ">
-
-                {/* Heading */}
-                {/* <div className="mb-5 pb-4 border-b border-blue-100">
-
-                  <span className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.25em] text-[#1565c0]">
-
-                    <div className="w-2 h-2 rounded-full bg-[#1565c0] animate-pulse" />
-
-                    Table of Contents
-                  </span>
-
-                </div> */}
 
                 {/* Items */}
                 <div className="space-y-3">
@@ -338,17 +346,17 @@ export default async function ServiceDetailPage({ params }) {
                       className="group relative flex items-center gap-4 rounded-xl border border-blue-100 bg-gradient-to-r from-[#1565c0] to-[#1976d2] px-1 py-2 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-100"
                     >
 
-                      {/* Glow Effect */}
+                    
                       <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition duration-300" />
 
-                      {/* Number */}
+                    
                       <div className="relative z-10 flex items-center justify-center w-9 h-9 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 text-white text-sm font-black shrink-0">
 
                         {String(index + 1).padStart(2, "0")}
 
                       </div>
 
-                      {/* Text */}
+                   
                       <div className="relative z-10 flex-1">
 
                         <p className="text-gray-300 font-bold text-[15px] leading-none">
@@ -357,7 +365,7 @@ export default async function ServiceDetailPage({ params }) {
 
                       </div>
 
-                      {/* Arrow */}
+                  
                       <div className="relative z-10 text-white/70 group-hover:translate-x-1 transition-transform duration-300">
                         →
                       </div>
@@ -369,27 +377,41 @@ export default async function ServiceDetailPage({ params }) {
               </div>
 
               {/* Quick CTA Block */}
-            <div className="mx-4 mt-6 p-2 rounded-2xl bg-gradient-to-br from-[#0d47a1] to-[#1565c0] text-white shadow-xl relative overflow-hidden group">
-                {/* Decorative background glow */}
+              <div className="mx-4 mt-6 p-2 rounded-2xl bg-gradient-to-br from-[#0d47a1] to-[#1565c0] text-white shadow-xl relative overflow-hidden group">
+
                 <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500" />
+
                 <div className="relative z-10">
-                  <h4 className="font-black text-lg mb-2">Need Manpower?</h4>
+
+                  <h4 className="font-black text-lg mb-2">
+                    {needManpower?.title}
+                  </h4>
+
                   <p className="text-white/80 text-xs leading-relaxed mb-4">
-                    Get quick, compliant, and experienced workforce deployment within 72 hours.
+                    {needManpower?.subtitle}
                   </p>
+
                   <Link
-                    href="/contact"
+                    href={needManpower?.url_path || "/contact"}
                     className="inline-flex items-center justify-center gap-2 w-full py-2 bg-white text-[#1565c0] font-black text-xs uppercase tracking-wider rounded-xl hover:bg-blue-50 transition-colors duration-300 active:scale-95 shadow-lg shadow-[#0d47a1]/20"
                   >
+
                     <Phone size={12} />
-                    <span>Talk to Expert</span>
+
+                    <span>
+                      {needManpower?.description
+                        ?.replace(/<[^>]*>/g, "") || "Talk to Expert"}
+                    </span>
+
                   </Link>
+
                 </div>
+
               </div>
 
             </div>
           </div>
-          {/* right side content */}
+
           <div className="container mx-auto my-2.5 px-6 max-w-7xl ">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
 
@@ -400,56 +422,75 @@ export default async function ServiceDetailPage({ params }) {
                 style={{ animationDelay: "0.2s" }}
               >
                 {/* Description */}
-                <div  id="overview" className="scroll-mt-28 bg-white dark:bg-transparent premium-glass p-4 md:p-3 rounded-[2rem] border border-gray-200 dark:border-white/5 relative overflow-hidden transition-colors duration-500">
+                <div id="overview" className="scroll-mt-28 bg-white dark:bg-transparent premium-glass p-4 md:p-3 rounded-[2rem] border border-gray-200 dark:border-white/5 relative overflow-hidden transition-colors duration-500">
                   <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
-                    Overview
+                    {content.title}
                   </h2>
                   <p className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed transition-colors duration-500">
-                    {service.description}
+                    {content.description.replace(/<[^>]*>/g, "")}
                   </p>
                 </div>
 
                 {/* Features */}
                 <div id="features" className="scroll-mt-28 my-4">
+
                   <h3
                     className="text-2xl font-black text-gray-900 dark:text-white tracking-tight transition-colors duration-500 mb-2"
                     style={{ fontFamily: "Outfit, sans-serif" }}
                   >
-                    Key Features
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {service.features?.map((feature, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-start gap-3 p-4 bg-white dark:bg-transparent premium-glass border border-gray-200 dark:border-white/5 rounded-xl hover:border-[#1565c0]/40 transition-all group"
-                      >
-                        <CheckCircle size={20} className="text-[#1565c0] shrink-0 mt-0.5" />
-                        <span className="text-gray-700 dark:text-gray-300 text-sm">
-                          {feature}
-                        </span>
+                    {content.extra_data?.map((text, idx) => (
+                      <div>
+                        {text.key}
                       </div>
                     ))}
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    {content.extra_data?.map((feature, idx) => (
+                      feature.points?.slice(0, 4).map((item, i) => (
+
+                        <div
+                          key={`${idx}-${i}`}
+                          className="flex items-start gap-3 p-4 bg-white dark:bg-transparent premium-glass border border-gray-200 dark:border-white/5 rounded-xl hover:border-[#1565c0]/40 transition-all group"
+                        >
+
+                          <CheckCircle
+                            size={20}
+                            className="text-[#1565c0] shrink-0 mt-0.5"
+                          />
+
+                          <span className="text-gray-700 dark:text-gray-300 text-sm">
+                            {item.point}
+                          </span>
+
+                        </div>
+
+                      ))
+                    ))}
+
                   </div>
+
                 </div>
 
                 {/* Benefits */}
-                {service.benefits && (
+                {benefit && (
                   <div id="benefits" className="scroll-mt-28 my-4">
                     <h3
                       className="text-2xl font-black text-gray-900 dark:text-white tracking-tight transition-colors duration-500"
                       style={{ fontFamily: "Outfit, sans-serif" }}
                     >
-                      Benefits
+                      {benefit.title}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {service.benefits?.map((benefit, idx) => (
+                      {benefit.points?.map((benefit, idx) => (
                         <div
                           key={idx}
                           className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-[#161b22] rounded-xl"
                         >
                           <div className="w-1.5 h-1.5 rounded-full bg-[#1565c0] mt-2" />
                           <span className="text-gray-600 dark:text-gray-400 text-sm">
-                            {benefit}
+                            {benefit.point}
                           </span>
                         </div>
                       ))}
@@ -458,45 +499,71 @@ export default async function ServiceDetailPage({ params }) {
                 )}
 
                 {/* Content Sections from the service.content array */}
-                {service.content && service.content.length > 0 && (
-                  <div id="content" className="scroll-mt-28 my-4 pt-3 border-t border-gray-200 dark:border-white/5">
-                    {service.content.map((item, idx) => {
-                      if (item.type === "heading") {
-                        return (
-                          <h3 key={idx} className="text-2xl font-black text-gray-900 dark:text-white">
-                            {item.text}
-                          </h3>
-                        );
-                      } else if (item.type === "paragraph") {
-                        return (
-                          <p key={idx} className="text-gray-600  dark:text-[#8b949e] leading-relaxed">
-                            {item.text}
-                          </p>
-                        );
-                      } else if (item.type === "takeaways") {
-                        return (
-                          <div key={idx} className="bg-[#1565c0]/5 p-4 mb-3 rounded-2xl border border-[#1565c0]/10">
-                            <h4 className="font-black text-gray-900 dark:text-white mb-4">
-                              {item.heading}
-                            </h4>
-                            <ul className="my-3 ps-1">
-                              {item.items.map((takeaway, tidx) => (
-                                <li key={tidx} className="flex items-start gap-3 my-3">
-                                  <CheckCircle size={18} className="text-[#1565c0] shrink-0 mt-0.5" />
-                                  <span className="text-gray-600 dark:text-gray-400 text-sm">
-                                    {takeaway}
-                                  </span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        );
-                      }
-                      return null;
-                    })}
+                {advantage && (
+                  <div
+                    id="content"
+                    className="scroll-mt-28 my-4 pt-3 border-t border-gray-200 dark:border-white/5"
+                  >
+
+                    {/* Title */}
+                    <h3 className="text-2xl font-black text-gray-900 dark:text-white">
+                      {advantage.title}
+                    </h3>
+
+
+                    {/* Subtitle */}
+                    {advantage.subtitle && (
+                      <p className="text-gray-600 dark:text-[#8b949e] leading-relaxed mt-2">
+                        {advantage.subtitle}
+                      </p>
+                    )}
+
+
+                    {/* Pointer Box */}
+                    {advantage?.extra_data?.map((item, idx) => (
+                      <div
+                        key={item.key}
+                        className="bg-[#1565c0]/5 p-4 my-4 rounded-2xl border border-[#1565c0]/10"
+                      >
+
+                        <h4 className="font-black text-gray-900 dark:text-white mb-4">
+                          {item.key}
+                        </h4>
+
+                        <ul className="my-3 ps-1">
+
+                          {item.points?.map((pointer, idx) => (
+                            <li
+                              key={idx}
+                              className="flex items-start gap-3 my-3"
+                            >
+
+                              <CheckCircle
+                                size={18}
+                                className="text-[#1565c0] shrink-0 mt-0.5"
+                              />
+
+                              <span className="text-gray-600 dark:text-gray-400 text-sm">
+                                {pointer.point}
+                              </span>
+
+                            </li>
+                          ))}
+
+                        </ul>
+
+                      </div>
+                    ))}
+
+                    {/* Description */}
+                    {advantage.description && (
+                      <p className="text-gray-600 dark:text-[#8b949e] leading-relaxed">
+                        {advantage.description.replace(/<[^>]*>/g, "")}
+                      </p>
+                    )}
+
                   </div>
                 )}
-
 
               </div>
 
@@ -506,69 +573,90 @@ export default async function ServiceDetailPage({ params }) {
                 style={{ animationDelay: "0.3s" }}
               >
 
-               {/* blog image */}
+                {/* blog image */}
                 <div className="bg-gray-200 dark:bg-[#161b22] border border-gray-300 dark:border-white/5 rounded-3xl overflow-hidden">
                   <img
-                    src={service.image}
-                    alt={service.title}
+                    src={`${IMAGE_URL}/${related.image}`}
+                    alt={related.alt_text}
                     className="w-full h-full object-cover"
                   />
                 </div>
 
                 {/* Related Services */}
-                {otherServices.length > 0 && (
-                  <div className="bg-white dark:bg-transparent premium-glass p-4 rounded-[2rem] border border-gray-200 dark:border-white/5">
-                    <h3 className="text-gray-900 dark:text-white font-black text-sm uppercase tracking-wider mb-6 flex items-center gap-2">
-                      <Info size={16} className="text-[#1565c0]" />
-                      Related Services
-                    </h3>
-                    <div className="my-3">
-                      {otherServices.map((s) => (
-                        <Link
-                          key={s.id}
-                          href={`/services/${s.slug}`}
-                          className="flex items-center justify-between group p-3 mb-3  rounded-xl border border-transparent hover:border-[#1565c0]/20 hover:bg-[#1565c0]/5 transition-all"
-                        >
-                          <span className="text-gray-700 dark:text-gray-300 font-medium text-sm group-hover:text-gray-900 dark:group-hover:text-white">
-                            {s.title}
-                          </span>
-                          <ArrowRight
-                            size={16}
-                            className="text-[#1565c0] opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1"
-                          />
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
-                {/* Quick Stats */}
-                <div className="bg-gradient-to-br from-[#1565c0] to-[#0d47a1] rounded-[2rem] p-4 text-white mt-4">
-                  <h3 className="text-xl font-black mb-4">Why Choose Us</h3>
-                  <div className="space-y-4">
-                    {data.stats?.slice(0, 3).map((stat) => (
-                      <div key={stat.id} className="flex justify-between items-center border-b border-white/20 py-3 last:border-0">
-                        <span className="text-white/80 text-sm">{stat.label}</span>
-                        <span className="font-black text-lg">{stat.value}</span>
-                      </div>
+                <div className="bg-white dark:bg-transparent premium-glass p-4 rounded-[2rem] border border-gray-200 dark:border-white/5">
+                  <h3 className="text-gray-900 dark:text-white font-black text-sm uppercase tracking-wider mb-6 flex items-center gap-2">
+                    <Info size={16} className="text-[#1565c0]" />
+                    {related.title}
+                  </h3>
+                  <div className="my-3">
+                    {related.extra_data.map((s) => (
+                      <Link
+                        key={s.key}
+                        href={`/services/${s.url_path}`}
+                        className="flex items-center justify-between group p-3 mb-3  rounded-xl border border-transparent hover:border-[#1565c0]/20 hover:bg-[#1565c0]/5 transition-all"
+                      >
+                        <span className="text-gray-700 dark:text-gray-300 font-medium text-sm group-hover:text-gray-900 dark:group-hover:text-white">
+                          {s.key}
+                        </span>
+                        <ArrowRight
+                          size={16}
+                          className="text-[#1565c0] opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1"
+                        />
+                      </Link>
                     ))}
                   </div>
                 </div>
 
+
+                {/* Quick Stats */}
+                <div className="bg-gradient-to-br from-[#1565c0] to-[#0d47a1] rounded-[2rem] p-4 text-white mt-4">
+
+                  <h3 className="text-xl font-black mb-4">
+                    {stats.title}
+                  </h3>
+
+                  <div className="space-y-4">
+
+                    {stats?.extra_data?.slice(0, 3).map((stat, idx) => (
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center border-b border-white/20 py-3 last:border-0"
+                      >
+
+                        <span className="text-white/80 text-sm">
+                          {stat.key}
+                        </span>
+
+                        <span className="font-black text-lg">
+                          {stat.value}
+                        </span>
+
+                      </div>
+                    ))}
+
+                  </div>
+
+                </div>
+
                 {/* CTA */}
                 <div className="bg-gray-900 dark:bg-[#0d1117] rounded-[2rem] p-4 text-center border border-gray-200 dark:border-white/5 mt-4">
+
                   <h3 className="text-xl font-black text-white mb-3">
-                    Need This Service?
+                    {needService?.title}
                   </h3>
+
                   <p className="text-gray-200 text-sm mb-3">
-                    Get in touch with our team for a customized solution.
+                    {needService?.subtitle}
                   </p>
+
                   <Button
-                    href="/contact"
+                    href={needService?.url_path || "/contact"}
                     className="w-full bg-[#1565c0] text-white hover:bg-[#0d47a1] border-none"
                   >
-                    Request Quote
+                    {needService?.description?.replace(/<[^>]*>/g, "") || "Request Quote"}
                   </Button>
+
                 </div>
               </aside>
             </div>
@@ -600,7 +688,7 @@ export default async function ServiceDetailPage({ params }) {
                       location-specific details.
                     </p>
                   </div>
-                  <ServiceDetailLocationTabs service={service}  />
+                  <ServiceDetailLocationTabs service={service} />
                 </div>
               </section>
             )}
@@ -608,6 +696,7 @@ export default async function ServiceDetailPage({ params }) {
 
           </div>
         </section>
+
       </main>
     );
   } catch (error) {

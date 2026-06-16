@@ -3,18 +3,62 @@
 import { useState } from "react";
 import { Send, CheckCircle2, ArrowRight } from "lucide-react";
 import Button from "@/components/ui/Button";
-
+import { API_ENDPOINTS } from "@/config/api";
 
 export default function ContactForm({ services }) {
   const [status, setStatus] = useState("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    how_can_we_help: "",
+    requirements: ""
+  });
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("sending");
-    // Simulate API call
-    setTimeout(() => {
-      setStatus("success");
-    }, 2000);
+    setErrorMsg("");
+
+    try {
+      const res = await fetch(API_ENDPOINTS.CONTACT_SUBMIT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+
+      if (res.ok && (data.status || data.success || res.status === 200 || res.status === 201)) {
+        setStatus("success");
+        setFormData({
+          first_name: "",
+          last_name: "",
+          email: "",
+          how_can_we_help: "",
+          requirements: ""
+        });
+      } else {
+        setStatus("error");
+        setErrorMsg(data.message || "Failed to submit inquiry. Please try again.");
+      }
+    } catch (err) {
+      console.error("Contact submit error:", err);
+      setStatus("error");
+      setErrorMsg("A network error occurred. Please check your connection and try again.");
+    }
   };
 
   if (status === "success") {
@@ -61,79 +105,89 @@ export default function ContactForm({ services }) {
       </h3>
 
       <form className="space-y-3 relative z-10" onSubmit={handleSubmit}>
+        {status === "error" && (
+          <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-xs font-semibold">
+            {errorMsg}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
           <div className="space-y-2">
             <label className="block text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-2">
-              Full Identity
+              First Name
             </label>
             <input
               required
               type="text"
-              placeholder="e.g. Alexander Pierce"
+              name="first_name"
+              value={formData.first_name}
+              onChange={handleChange}
+              placeholder="e.g. Alexander"
               className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-3 py-3 text-gray-900 placeholder:text-gray-400 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20 focus:outline-none transition-all shadow-sm hover:border-gray-300"
             />
           </div>
           <div className="space-y-2">
             <label className="block text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-2">
-              E-Mail
+              Last Name
             </label>
             <input
-              required
-              type="email"
-              placeholder="pierce@global-industry.com"
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-3 py-3 text-gray-900 placeholder:text-gray-400 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20 focus:outline-none transition-all shadow-sm hover:border-gray-300"
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-          <div className="space-y-2">
-            <label className="block text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-2">
-              Phone
-            </label>
-            <input
-              required
               type="text"
-              placeholder="e.g. +91 9876543210"
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-3 py-3 text-gray-900 placeholder:text-gray-400 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20 focus:outline-none transition-all shadow-sm hover:border-gray-300"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="block text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-2">
-              Website
-            </label>
-            <input
-              required
-              type="url"
-              placeholder="kdsinternational.org"
+              name="last_name"
+              value={formData.last_name}
+              onChange={handleChange}
+              placeholder="e.g. Pierce"
               className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-3 py-3 text-gray-900 placeholder:text-gray-400 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20 focus:outline-none transition-all shadow-sm hover:border-gray-300"
             />
           </div>
         </div>
 
-        <div className="space-y-2 mb-3">
-          <label className="block text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-2">
-            Solution Vertical
-          </label>
-          <div className="relative">
-            <select className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-3 py-3 text-gray-900 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20 focus:outline-none transition-all appearance-none cursor-pointer hover:border-gray-300">
-              <option className="text-gray-500">Select Core Capability</option>
-              {services?.map((s) => (
-                <option key={s.id} className="text-gray-900">{s.title}</option>
-              ))}
-              <option className="text-gray-900">Strategic Partnership</option>
-            </select>
-            <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-              <ArrowRight size={16} className="rotate-90" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+          <div className="space-y-2">
+            <label className="block text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-2">
+              E-Mail
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="pierce@global-industry.com"
+              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-3 py-3 text-gray-900 placeholder:text-gray-400 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20 focus:outline-none transition-all shadow-sm hover:border-gray-300"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-2">
+              How Can We Help?
+            </label>
+            <div className="relative">
+              <select
+                name="how_can_we_help"
+                value={formData.how_can_we_help}
+                onChange={handleChange}
+                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-3 py-3 text-gray-900 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20 focus:outline-none transition-all appearance-none cursor-pointer hover:border-gray-300"
+              >
+                <option value="">Select Core Capability</option>
+                {services?.map((s) => (
+                  <option key={s.id} value={s.title}>{s.title}</option>
+                ))}
+                <option value="Strategic Partnership">Strategic Partnership</option>
+              </select>
+              <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                <ArrowRight size={16} className="rotate-90" />
+              </div>
             </div>
           </div>
         </div>
 
         <div className="space-y-2">
           <label className="block text-[10px] font-black text-gray-700 uppercase tracking-[0.2em] ml-2">
-            Project Brief
+            Requirements / Project Brief
           </label>
           <textarea
-            required
+            name="requirements"
+            value={formData.requirements}
+            onChange={handleChange}
             rows={4}
             placeholder="Describe your precision requirements..."
             className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-3 py-3 text-gray-900 placeholder:text-gray-400 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20 focus:outline-none transition-all resize-none shadow-sm hover:border-gray-300"

@@ -1,9 +1,17 @@
 export const solutionsData = [
   {
-    category: "Workforce Management",
-    description: "Intelligent staffing, resource planning, custom scheduling, and compliance to maximize labor productivity.",
+    category: "Build a Future-Ready Workforce",
+    description: "Whether your organization is scaling operations, entering new markets, adapting to technological advancements, or just dealing with workforce transitions, our Workforce Planning services give a kind of strategic roadmap for sustainable growth and long-term success.",
     image: "/skills-arm.png",
+    overview: `In today’s fast changing business landscape, organizations really need more than just hiring strategies to stay ahead and competitive. They often require an organized, forward-leaning approach that sort of lines up people, capabilities, and business outcomes.
+At KDS International Pvt. Ltd., we help companies build smart workforce planning strategies so the correct talent is present at the right time, for the right positions, and at the right price point.
+`,
+    overviewDesc: `In today’s fast changing business landscape, organizations really need more than just hiring strategies to stay ahead and competitive. They often require an organized, forward-leaning approach that sort of lines up people, capabilities, and business outcomes. And this is where workforce planning becomes kind of essential, not as a nice to have, but as the engine.  
+
+At KDS International Pvt. Ltd., we help companies build smart workforce planning strategies so the correct talent is present at the right time, for the right positions, and at the right price point.
+`,
     iconName: "Briefcase",
+    overviewHed: "Strategic Workforce Planning Solutions for Sustainable Business Growth",
     items: [
       { name: "Workforce Planning", slug: "workforce-planning" },
       { name: "Employee Scheduling", slug: "employee-scheduling" },

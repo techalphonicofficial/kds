@@ -14,6 +14,7 @@ import './Certification.css';
 import SectionTitle from '@/components/ui/SectionTitle';
 
 const Certification = ({ data }) => {
+    console.log(data);
     const [swiperInitialized, setSwiperInitialized] = useState(false);
     const swiperRef = useRef(null);
     const prevRef = useRef(null);
@@ -51,11 +52,12 @@ const Certification = ({ data }) => {
         <section className="bg-white dark:bg-[#06111e] py-5 md:py-4 transition-colors duration-500 overflow-hidden">
             <div className="container mx-auto px-0 max-w-8xl">
                 <SectionTitle
-                            label=""
-                            title="Certifications"
-                            subtitle="A global team of experts committed to delivering industrial excellence."
-                            align="center"
-                          />
+                    data={data}
+                    label=""
+                    title="Certifications"
+                    subtitle="A global team of experts committed to delivering industrial excellence."
+                    align="center"
+                />
 
                 <div className="relative pt-0">
                     {/* Custom Navigation Buttons */}
@@ -126,15 +128,16 @@ const Certification = ({ data }) => {
                                 swiper.params.navigation.nextEl = nextRef.current;
                             }
                         }}
-                        className="testimonials-slider pb-4"
-                    >
-                        {data.map((cert, i) => (
-                            <SwiperSlide key={cert.id || i}>
-                                 <div key={cert.id} className="group relative">
+                        className="testimonials-slider pb-4">
+                        {data.carousel_json?.map((cert, i) => (
+                            <SwiperSlide key={cert.key || i}>
+                                <div key={cert.id} className="group relative">
                                     <div className="bg-white dark:bg-transparent premium-glass text-center h-full flex flex-col items-center">
-                                    <div>
-                                        <img src={cert.image} alt="" />
-                                    </div>
+                                        <div>
+                                            <img
+                                                src={`https://darkturquoise-koala-648403.hostingersite.com/${cert.image}`}
+                                                alt=""
+                                            />                                    </div>
                                     </div>
                                 </div>
                             </SwiperSlide>

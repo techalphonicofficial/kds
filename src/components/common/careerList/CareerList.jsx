@@ -275,7 +275,8 @@ const CareerList = ({ careerData }) => {
             </div>
           )}
           <CareerApplicationForm 
-            initialPosition={selectedPosition?.name}
+            job={selectedPosition}
+            initialPosition={selectedPosition?.title || 'Other'}
             onSuccess={() => {
               // Optional: Close drawer after successful submission
               setTimeout(() => setIsDrawerOpen(false), 3000);

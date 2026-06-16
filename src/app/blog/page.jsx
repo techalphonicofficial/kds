@@ -3,7 +3,7 @@
 // import BlogCard from "@/components/ui/BlogCard";
 // import Button from "@/components/ui/Button";
 
-// export const metadata = {
+
 //   title: "Industry Insights & Blog",
 //   description:
 //     "Latest news, industry trends, and expert perspectives from the KDS International team.",
@@ -120,23 +120,89 @@ import BlogCard from "@/components/ui/BlogCard";
 import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
 import Link from "next/link";
+import { API_ENDPOINTS } from "@/config/api";
+import { getBySlug } from "@/lib/data";
+import { IMAGE_URL } from "@/config/api";
+import { getData } from '@/lib/data';
+import { getPageSEO } from '@/lib/metadata';
 
-export const metadata = {
-  title: "Industry Insights & Blog",
-  description:
-    "Latest news, industry trends, and expert perspectives from the KDS International team.",
-};
+
+export async function generateMetadata() {
+  const page = await getPageSEO("blog");
+  return {
+    title: page?.meta_title || "Careers | KDS International",
+    description: page?.meta_description || "",
+    keywords: page?.meta_keywords?.split(",") || [],
+    openGraph: {
+      title: page?.meta_title,
+      description: page?.meta_description,
+      images: [{ url: `${IMAGE_URL}/${page?.image}` }],
+    },
+    other: {
+      "script:type": JSON.stringify(page?.meta_schema || []),
+    },
+  };
+}
 
 export default async function BlogListingPage({ searchParams }) {
-  const data = await getServerData();
-  const { blogPosts, services, stats } = data;
-  
-  // Pagination logic
-  const page = Number(searchParams?.page) || 1;
+  const resolvedSearchParams = await searchParams;
+  const response = await getData(API_ENDPOINTS.BLOGS);
+  const pages = await getPageSEO("blog");
+
+  const sections = response.data.sections.reduce(
+    (acc, section) => {
+      acc[section.section_key] = section;
+      return acc;
+    },
+    {}
+  );
+
+  const hero = sections.hero_section;
+
+  // Map sections that have section_key === "blog_card" to dynamic blog list
+  const apiBlogs = (response.data.sections || [])
+    .filter(section => section.section_key === "blog_card")
+    .map(card => {
+      const author = card.description ? card.description.replace(/<[^>]*>/g, "") : "KDS Team";
+
+      let slug = card.id;
+      if (card.extra && card.extra[0] && card.extra[0].url_path) {
+        const urlStr = card.extra[0].url_path;
+        const parts = urlStr.split("/");
+        slug = parts[parts.length - 1] || card.id;
+      }
+
+      const excerpt = card.points && card.points[0] ? card.points[0].point.replace(/[“”"']/g, "") : "";
+
+      return {
+        id: card.id,
+        slug: slug,
+        title: card.title || "Industry Insights",
+        date: card.subtitle || "2025-12-12",
+        author: author,
+        image: card.image,
+        category: card.alt_text || "Insights",
+        excerpt: excerpt
+      };
+    });
+
+  // Filter by category parameter if present
+  const categoryFilter = resolvedSearchParams?.category;
+  const filteredBlogs = categoryFilter
+    ? apiBlogs.filter(post => post.category?.toLowerCase() === categoryFilter.toLowerCase())
+    : apiBlogs;
+
+  // Pagination logic using apiBlogs
+  const page = Number(resolvedSearchParams?.page) || 1;
   const postsPerPage = 10;
-  const totalPages = Math.ceil(blogPosts.length / postsPerPage);
+  const totalPages = Math.ceil(filteredBlogs.length / postsPerPage);
   const startIndex = (page - 1) * postsPerPage;
-  const paginatedPosts = blogPosts.slice(startIndex, startIndex + postsPerPage);
+  const paginatedPosts = filteredBlogs.slice(startIndex, startIndex + postsPerPage);
+
+  const uniqueCategories = Array.from(new Set(apiBlogs.map(post => post.category)));
+
+  const data = await getServerData();
+  const { services } = data;
 
   // Filter other services (excluding current if any)
   const otherServices = services?.filter(s => s.id !== 'current-service-id') || [];
@@ -144,145 +210,176 @@ export default async function BlogListingPage({ searchParams }) {
   return (
     <Suspense>
 
-    <main className="overflow-hidden bg-white transition-colors duration-500">
-      {/* ─── HERO SECTION ──────────────────────────────────────────────── */}
-      <section className="relative mt-5 pt-5 pb-5 hero-bg overflow-hidden text-center">
-        <div className="absolute inset-0 hero-grid opacity-30" />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#1565c0]/10 glow-blob rounded-full blur-[120px]" />
+      <main className="overflow-hidden bg-white transition-colors duration-500">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(
+              pages?.meta_schema?.[0]?.schema || {}
+            )
+          }}
+        />
+        {/* ─── HERO SECTION ──────────────────────────────────────────────── */}
+        <section className="relative mt-5 pt-5 pb-5 hero-bg overflow-hidden text-center">
+          <div className="absolute inset-0 hero-grid opacity-30" />
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#1565c0]/10 glow-blob rounded-full blur-[120px]" />
+          <div className="container mx-auto mt-5 px-6 max-w-7xl relative z-10">
+            {/* Label */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full premium-glass border-[#1565c0]/30 mb-8 animate-fade-in-up">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1565c0]">
+                {hero?.title}
+              </span>
 
-        <div className="container mx-auto mt-5 px-6 max-w-7xl relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full premium-glass border-[#1565c0]/30 mb-8 animate-fade-in-up">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1565c0]">
-              Industry Intelligence
-            </span>
+            </div>
+            {/* Heading */}
+            <h1
+              className="text-6xl md:text-8xl font-black !text-gray-200 dark:text-white mb-8 leading-[0.9] tracking-tighter animate-fade-in-up"
+              style={{ animationDelay: "0.1s" }}
+            >
+
+              {hero?.subtitle?.split(" ").slice(0, 2).join(" ")}
+
+              <br />
+
+              <span className="gradient-text">
+
+                {
+                  hero?.subtitle
+                    ?.split(" ")
+                    ?.slice(2)
+                    ?.join(" ")
+                }
+
+              </span>
+            </h1>
+
+            {/* Description */}
+            <p
+              className="text-gray-300 dark:text-[#8b949e] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed animate-fade-in-up"
+              style={{ animationDelay: "0.2s" }}
+            >
+
+              {hero?.description?.replace(/<[^>]*>/g, "")}
+
+            </p>
+
+
+
           </div>
-          <h1
-            className="text-6xl md:text-8xl font-black !text-gray-200 dark:text-white mb-8 leading-[0.9] tracking-tighter animate-fade-in-up transition-colors duration-500"
-            style={{ animationDelay: "0.1s" }}
-          >
-            The Global
-            <br />
-            <span className="gradient-text">Insight Archive.</span>
-          </h1>
-          <p
-            className="text-gray-300 dark:text-[#8b949e] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed animate-fade-in-up transition-colors duration-500"
-            style={{ animationDelay: "0.2s" }}
-          >
-            Strategic analysis, industrial trends, and technical perspectives
-            from the frontline of global supply chain management.
-          </p>
-        </div>
-      </section>
 
-      {/* ─── BLOG FEED WITH SIDEBAR ────────────────────────────────────── */}
-      <section className="section-padding relative">
-        <div className="container mx-auto px-6 max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Main Content - Blog Posts (3 columns) */}
-            <div className="lg:col-span-3">
-              {blogPosts.length > 0 ? (
-                 <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
-                {paginatedPosts.map((post, idx) => (
-                  <div
-                    key={post.id}
-                    className="animate-fade-in-up"
-                    style={{ animationDelay: `${0.1 * (idx + 1)}s` }}
-                  >
-                    <BlogCard post={post} />
+        </section>
+
+        {/* ─── BLOG FEED WITH SIDEBAR ────────────────────────────────────── */}
+        <section className="section-padding relative">
+          <div className="container mx-auto px-6 max-w-7xl">
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              {/* Main Content - Blog Posts (3 columns) */}
+              <div className="lg:col-span-3">
+                {paginatedPosts.length > 0 ? (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
+                      {paginatedPosts.map((post, idx) => (
+                        <div
+                          key={post.id}
+                          className="animate-fade-in-up"
+                          style={{ animationDelay: `${0.1 * (idx + 1)}s` }}
+                        >
+                          <BlogCard post={post} />
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="mt-5 animate-fade-in-up">
+                        <Pagination
+                          currentPage={page}
+                          totalPages={totalPages}
+                          baseUrl="/blog"
+                        />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-center py-5 bg-gray-50 border border-gray-200 rounded-[3rem] animate-fade-in-up transition-colors duration-500">
+                    <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center mx-auto mb-8 border border-gray-200 shadow-sm">
+                      <Tag className="text-gray-400" size={40} />
+                    </div>
+                    <h3
+                      className="text-2xl font-black text-gray-900 mb-4 tracking-tight"
+                      style={{ fontFamily: "Outfit, sans-serif" }}
+                    >
+                      No Analysis Published Yet
+                    </h3>
+                    <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
+                      Our engineers and analysts are currently compiling new industry
+                      reports. Check back shortly for fresh insights.
+                    </p>
                   </div>
-                ))}
+                )}
               </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="mt-5 animate-fade-in-up">
-                  <Pagination 
-                    currentPage={page} 
-                    totalPages={totalPages} 
-                    baseUrl="/blog"
-                  />
-                </div>
-              )}
-            </>
-              ) : (
-                <div className="text-center py-5 bg-gray-50 border border-gray-200 rounded-[3rem] animate-fade-in-up transition-colors duration-500">
-                  <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center mx-auto mb-8 border border-gray-200 shadow-sm">
-                    <Tag className="text-gray-400" size={40} />
+              {/* Sidebar (1 column) */}
+              <aside className="space-y-8 animate-fade-in-up lg:col-span-1">
+                {/* Related Services */}
+                {uniqueCategories.length > 0 && (
+                  <div className=" bg-white dark:bg-transparent premium-glass p-4 rounded-[2rem] border border-gray-200 dark:border-white/5">
+                    <h3 className="text-gray-900 dark:text-white font-black text-sm  tracking-wider mb-2 flex items-center gap-2">
+                      {/* <Info size={16} className="text-[#1565c0]" /> */}
+                      Categories
+                    </h3>
+                    <div className="my-3">
+                      {uniqueCategories.slice(0, 5).map((category, idx) => (
+                        <Link
+                          key={idx}
+                          href={`/blog?category=${category}`}
+                          className="flex items-center justify-between group p-3 mb-3 rounded-xl border border-transparent hover:border-[#1565c0]/20 hover:bg-[#1565c0]/5 transition-all"
+                        >
+                          <span className="text-gray-700 dark:text-gray-300 font-medium text-sm group-hover:text-gray-900 dark:group-hover:text-white">
+                            {category}
+                          </span>
+                          <ArrowRight
+                            size={16}
+                            className="text-[#1565c0] opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1"
+                          />
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                  <h3
-                    className="text-2xl font-black text-gray-900 mb-4 tracking-tight"
-                    style={{ fontFamily: "Outfit, sans-serif" }}
-                  >
-                    No Analysis Published Yet
-                  </h3>
-                  <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
-                    Our engineers and analysts are currently compiling new industry
-                    reports. Check back shortly for fresh insights.
-                  </p>
-                </div>
-              )}
+                )}
+              </aside>
             </div>
-
-            {/* Sidebar (1 column) */}
-            <aside className="space-y-8 animate-fade-in-up lg:col-span-1">
-              {/* Related Services */}
-              {blogPosts.length > 0 && (
-                <div className=" bg-white dark:bg-transparent premium-glass p-4 rounded-[2rem] border border-gray-200 dark:border-white/5">
-                  <h3 className="text-gray-900 dark:text-white font-black text-sm  tracking-wider mb-2 flex items-center gap-2">
-                    {/* <Info size={16} className="text-[#1565c0]" /> */}
-                    Categories
-                  </h3>
-                  <div className="my-3">
-                    {blogPosts.slice(0, 5).map((s) => (
-                      <Link
-                        key={s.id}
-                       href={`/blog?category=${s.category}`}
-                        className="flex items-center justify-between group p-3 mb-3 rounded-xl border border-transparent hover:border-[#1565c0]/20 hover:bg-[#1565c0]/5 transition-all"
-                      >
-                        <span className="text-gray-700 dark:text-gray-300 font-medium text-sm group-hover:text-gray-900 dark:group-hover:text-white">
-                          {s.category}
-                        </span>
-                        <ArrowRight
-                          size={16}
-                          className="text-[#1565c0] opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1"
-                        />
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </aside>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ─── FINAL CTA ────────────────────────────────────────────────── */}
-      <section className="py-5 relative overflow-hidden bg-gradient-to-br from-[#f8fafc] to-white border-t border-gray-200">
-        <div className="container mx-auto px-6 max-w-4xl text-center relative z-10">
-          <h2
-            className="text-4xl md:text-6xl font-black text-gray-900 mb-8 tracking-tighter"
-            style={{ fontFamily: "Outfit, sans-serif" }}
-          >
-            Stay Informed. <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1565c0] to-[#1e88e5]">Stay Precise.</span>
-          </h2>
-          <p className="text-gray-600 text-xl mb-8 italic">
-            &ldquo;In a world of noise, data-driven precision is the only
-            competitive advantage that lasts.&rdquo;
-          </p>
-          <div className="flex justify-center">
-            <Button
-              href="/contact"
-              size="lg"
-              className="bg-gradient-to-r from-[#1565c0] to-[#1e88e5] text-white border-0 shadow-lg shadow-[#1565c0]/20 hover:shadow-xl hover:shadow-[#1565c0]/30 transition-all"
+        {/* ─── FINAL CTA ────────────────────────────────────────────────── */}
+        <section className="py-5 relative overflow-hidden bg-gradient-to-br from-[#f8fafc] to-white border-t border-gray-200">
+          <div className="container mx-auto px-6 max-w-4xl text-center relative z-10">
+            <h2
+              className="text-4xl md:text-6xl font-black text-gray-900 mb-8 tracking-tighter"
+              style={{ fontFamily: "Outfit, sans-serif" }}
             >
-              Partner With KDS
-            </Button>
+              Stay Informed. <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1565c0] to-[#1e88e5]">Stay Precise.</span>
+            </h2>
+            <p className="text-gray-600 text-xl mb-8 italic">
+              &ldquo;In a world of noise, data-driven precision is the only
+              competitive advantage that lasts.&rdquo;
+            </p>
+            <div className="flex justify-center">
+              <Button
+                href="/contact"
+                size="lg"
+                className="bg-gradient-to-r from-[#1565c0] to-[#1e88e5] text-white border-0 shadow-lg shadow-[#1565c0]/20 hover:shadow-xl hover:shadow-[#1565c0]/30 transition-all"
+              >
+                Partner With KDS
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
-    </main>
+        </section>
+
+      </main>
     </Suspense>
   );
 }

@@ -1,6 +1,10 @@
 import { technologyData } from "@/lib/solutionsAndTechData";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Button from "@/components/ui/Button";
+import { getData } from "@/lib/data";
+import { API_ENDPOINTS } from "@/config/api";
+import { IMAGE_URL } from "@/config/api";
+import { getPageSEO } from "@/lib/metadata";
 import Link from "next/link";
 import {
   Cpu,
@@ -20,10 +24,23 @@ import {
   Fingerprint
 } from "lucide-react";
 
-export const metadata = {
-  title: "Technology & Operations | KDS International",
-  description: "Explore KDS International's digital workforce technology, telemetry solutions, biometric attendance systems, real-time command center, and live GPS patrol tracking.",
-};
+// export async function generateMetadata() {
+//   const page = await getPageSEO("technology");
+
+//   return {
+//     title: page?.meta_title || "KDS International",
+//     description: page?.meta_description || "",
+//     keywords: page?.meta_keywords?.split(",") || [],
+//     openGraph: {
+//       title: page?.meta_title,
+//       description: page?.meta_description,
+//       images: [{ url: `${IMAGE_URL}/${page.image}` }],
+//     },
+//     other: {
+//       "script:type": JSON.stringify(page?.meta_schema || []),
+//     },
+//   };
+// }
 
 const IconMap = {
   Cpu: Cpu,
@@ -58,10 +75,39 @@ const techShowcase = [
   }
 ];
 
-export default function TechnologyPage() {
+export default async function TechnologyPage() {
+
+  const technology = await getData(API_ENDPOINTS.TECHNOLOGY);
+
+  // const page = await getPageSEO("technology");
+
+  const sections = technology.data.sections.reduce(
+    (acc, section) => {
+      acc[section.section_key] = section;
+      return acc;
+    },
+    {}
+  );
+
+
+  const heroSection = sections.hero_section;
+  const stats = sections.stats_key;
+  const solution = sections.our_solutions;
+  const proven_deplo = sections.proven_deplo
+  const ctaBlue = sections.cta_Blue;
+
   return (
     <main className="overflow-hidden dark:bg-[#0d1117] transition-colors duration-500">
+      {/* <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            page?.meta_schema?.[0]?.schema || {}
+          )
+        }}
+      /> */}
       {/* ─── HERO SECTION ──────────────────────────────────────────────── */}
+
       <section className="relative section-padding hero-bg overflow-hidden">
         {/* Visual Background grid and glow blobs */}
         <div className="absolute inset-0 hero-grid opacity-30" />
@@ -70,93 +116,187 @@ export default function TechnologyPage() {
 
         <div className="container mx-auto px-6 max-w-7xl relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Text column */}
+
+            {/* Text */}
             <div className="lg:col-span-7 max-w-3xl">
+
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full premium-glass border-teal-600/30 mb-8 animate-fade-in-up">
+
                 <Activity size={14} className="text-teal-600" />
+
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-teal-600">
-                  Telemetry & Infrastructure
+                  {heroSection?.subtitle}
                 </span>
+
               </div>
+
+
               <h1
-                className="text-5xl md:text-7xl font-black !text-gray-200 dark:text-white mb-8 leading-[1.05] tracking-tighter animate-fade-in-up transition-colors duration-500"
-                style={{ animationDelay: "0.1s", fontFamily: "Outfit, sans-serif" }}
+                className="text-5xl md:text-7xl font-black !text-gray-200 dark:text-white mb-8 leading-[1.05] tracking-tighter animate-fade-in-up"
+                style={{
+                  animationDelay: "0.1s",
+                  fontFamily: "Outfit, sans-serif"
+                }}
               >
-                Digital Command.
+
+                {heroSection?.title}
+
                 <br />
-                <span className="gradient-text bg-gradient-to-r from-teal-500 to-[#1565c0]">Smart Operations.</span>
+
+                <span className="gradient-text bg-gradient-to-r from-teal-500 to-[#1565c0]">
+                  {heroSection?.subtitle}
+                </span>
+
               </h1>
+
+
+
               <p
-                className="text-gray-300 dark:text-[#8b949e] text-lg md:text-xl leading-relaxed mb-10 max-w-xl animate-fade-in-up transition-colors duration-500"
+                className="text-gray-300 dark:text-[#8b949e] text-lg md:text-xl leading-relaxed mb-10 max-w-xl animate-fade-in-up"
                 style={{ animationDelay: "0.2s" }}
               >
-                Leverage our advanced command center telemetry, digital compliance networks, and live biometric workforce applications to unlock complete site visibility.
+                {heroSection?.description?.replace(/<[^>]+>/g, "")}
               </p>
+
+
+
               <div
                 className="animate-fade-in-up flex flex-wrap gap-4"
                 style={{ animationDelay: "0.3s" }}
               >
-                <Button
-                  href="/contact"
-                  size="lg"
-                  className="bg-teal-600 hover:bg-teal-700 text-white border-none shadow-2xl shadow-teal-500/20 font-bold"
-                >
-                  Request Technical Demo <ArrowRight size={18} className="ml-2" />
-                </Button>
-                <Button
-                  href="#explore-tech"
-                  variant="outline"
-                  size="lg"
-                  className="border-gray-300 dark:border-white/10 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 font-bold"
-                >
-                  Explore Capabilities
-                </Button>
+
+                {heroSection?.extra?.map((item, index) => (
+
+                  item?.show_url_path && (
+
+                    <Button
+                      key={index}
+                      href={item.url_path}
+                      size="lg"
+                      className="bg-teal-600 hover:bg-teal-700 text-white border-none shadow-2xl shadow-teal-500/20 font-bold"
+                    >
+
+                      {item.key}
+
+                      <ArrowRight size={18} className="ml-2" />
+
+                    </Button>
+
+                  )
+
+                ))}
               </div>
+
             </div>
 
-            {/* Visual Image Banner column */}
-            <div className="lg:col-span-5 relative h-[350px] md:h-[450px] w-full rounded-[2.5rem] overflow-hidden border border-gray-200 dark:border-white/10 shadow-2xl animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+
+
+            {/* Image */}
+            <div
+              className="lg:col-span-5 relative h-[350px] md:h-[450px] w-full rounded-[2.5rem] overflow-hidden border border-gray-200 dark:border-white/10 shadow-2xl animate-fade-in-up"
+              style={{ animationDelay: "0.2s" }}
+            >
+
               <img
-                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop"
-                alt="Command Center operations and charts screen"
+                src={`${IMAGE_URL}/${heroSection?.image}`}
+                alt={heroSection?.alt_text || "Hero Image"}
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
               />
+
+
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+
+
               <div className="absolute bottom-6 left-6 right-6 text-white">
-                <p className="text-teal-400 font-black text-xs uppercase tracking-widest mb-1">Central Console</p>
-                <h3 className="text-xl font-bold tracking-tight">Real-Time Operational Audit</h3>
-                <p className="text-white/80 text-xs mt-1">Live patrol logs, biometric verification, and automated shift schedules.</p>
+
+                <p className="text-teal-400 font-black text-xs uppercase tracking-widest mb-1">
+                  {heroSection?.subtitle}
+                </p>
+
+
+                <h3 className="text-xl font-bold tracking-tight">
+                  {heroSection?.title}
+                </h3>
+
+
+                <p className="text-white/80 text-xs mt-1">
+                  {heroSection?.description?.replace(/<[^>]+>/g, "")}
+                </p>
+
+
               </div>
+
             </div>
+
+
           </div>
         </div>
       </section>
 
-      {/* ─── PROCESS / TECH METRICS ───────────────────────────────────── */}
+       {/* ─── PROCESS / TECH METRICS ───────────────────────────────────── */}
       <section className="bg-gray-50 dark:bg-[#161b22] border-y border-gray-200 dark:border-white/5 section-padding relative z-10 transition-colors duration-500">
+
         <div className="container mx-auto px-6 max-w-7xl">
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center text-center">
-            {[
-              { label: "Telemetry Uptime", val: "99.99%", sub: "Enterprise Hosting" },
-              { label: "Alert Notification Delay", val: "< 2.5s", sub: "SMS/Email Broadcast" },
-              { label: "Biometric Handshakes", val: "10K+", sub: "Daily Attendance Syncs" },
-              { label: "GPS Tracking Frequency", val: "15s", sub: "Live Route Refresh" }
-            ].map((stat, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <span className="text-2xl md:text-3xl font-black text-blue-700" style={{ fontFamily: "Outfit, sans-serif" }}>{stat.val}</span>
-                <span className="text-xs font-black text-gray-800 dark:text-gray-200 mt-1 uppercase tracking-wider">{stat.label}</span>
-                <span className="text-[10px] text-gray-400 dark:text-[#8b949e]">{stat.sub}</span>
+
+
+            {stats?.extra?.map((stat, i) => (
+
+              <div
+                key={i}
+                className="flex flex-col items-center"
+              >
+
+                {/* Percentage / Main Value */}
+                <span
+                  className="text-2xl md:text-3xl font-black text-blue-700"
+                  style={{
+                    fontFamily: "Outfit, sans-serif"
+                  }}
+                >
+                  {stat?.key}
+                </span>
+
+
+                {/* Label */}
+                <span
+                  className="text-xs font-black text-gray-800 dark:text-gray-200 mt-1 uppercase tracking-wider"
+                >
+                  {stat?.value}
+                </span>
+
+
+
+                {/* Subtitle */}
+                {stat?.show_subtitle && stat?.subtitle && (
+
+                  <span
+                    className="text-[10px] text-gray-400 dark:text-[#8b949e]"
+                  >
+                    {stat.subtitle}
+                  </span>
+
+                )}
+
+
               </div>
+
             ))}
+
+
           </div>
+
         </div>
+
       </section>
 
-      {/* ─── TECHNOLOGY GRID ────────────────────────────────────────── */}
+        {/* ─── TECHNOLOGY GRID ────────────────────────────────────────── */}
       <section id="explore-tech" className="section-padding relative bg-white dark:bg-[#0d1117] transition-colors duration-500">
         <div className="container mx-auto px-6 max-w-7xl">
           <div className="text-center mb-16">
             <SectionTitle
+              data={solution}
               label="Our Capabilities"
               title="State-of-the-Art Operations Tech"
               subtitle="We deploy custom digital apps, IoT command center telemetry, and strict biometric audit tools to guarantee compliance and real-time support."
@@ -165,138 +305,342 @@ export default function TechnologyPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {technologyData.map((tech, index) => {
-              const Icon = IconMap[tech.iconName] || Cpu;
+
+            {solution?.extra?.map((tech, index) => {
+
+              const Icon = Cpu;
+
               return (
+
                 <div
                   key={index}
-                  className="group flex flex-col bg-white dark:bg-[#161b22]/50 premium-glass rounded-[2rem] border border-gray-200 dark:border-white/5 hover:border-teal-500/40 dark:hover:border-teal-500/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(20,184,166,0.15)] overflow-hidden"
+                  className="group flex flex-col bg-white dark:bg-[#161b22]/50 premium-glass rounded-[2rem] border border-gray-200 dark:border-white/5 hover:border-teal-500/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(20,184,166,0.15)] overflow-hidden"
                 >
-                  {/* Category Image */}
-                  <div className="relative h-48 w-full overflow-hidden">
-                    <img
-                      src={tech.image}
-                      alt={tech.category}
-                      className="w-full h-full object-cover transition-transform duration-750 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute bottom-4 left-6 flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-blue-600/80 backdrop-blur-md flex items-center justify-center text-white border border-white/20">
-                        <Icon size={18} />
-                      </div>
-                      <h3
-                        className="text-white font-black text-lg tracking-tight"
-                        style={{ fontFamily: "Outfit, sans-serif" }}
-                      >
-                        {tech.category}
-                      </h3>
-                    </div>
-                  </div>
 
-                  {/* Body Content */}
-                  <div className="p-6 flex-1 flex flex-col" >
+
+                  {/* Image */}
+                  {tech?.show_image && (
+
+                    <div className="relative h-48 w-full overflow-hidden">
+
+                      <img
+                        src={`${IMAGE_URL}/${tech.image}`}
+                        alt={tech.alt_text || tech.key}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+
+
+                      <div className="absolute bottom-4 left-6 flex items-center gap-3">
+
+                        <div className="w-10 h-10 rounded-xl bg-blue-600/80 backdrop-blur-md flex items-center justify-center text-white border border-white/20">
+                          <Icon size={18} />
+                        </div>
+
+
+                        <h3
+                          className="text-white font-black text-lg tracking-tight"
+                          style={{ fontFamily: "Outfit,sans-serif" }}
+                        >
+                          {tech.key}
+                        </h3>
+
+
+                      </div>
+
+                    </div>
+
+                  )}
+
+
+
+                  {/* Body */}
+
+                  <div className="p-6 flex-1 flex flex-col">
+
+
                     <p className="text-gray-600 px-4 py-2 dark:text-[#8b949e] text-sm leading-relaxed mb-6">
-                      {tech.description}
+                      {tech.value}
                     </p>
 
-                    <div className="border-t border-gray-100 dark:border-white/5 px-4 mb-6">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-black mb-3">Key Technologies</p>
-                      <div className="flex flex-col gap-2">
-                        {tech.items.map((item, idx) => (
-                          <Link
-                            key={idx}
-                            href={`/technology-and-operations/${item.slug}`}
-                            className="flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition-colors py-1 group/link"
-                          >
-                            <span className="flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 rounded-full bg-blue-200" />
-                              {item.name}
-                            </span>
-                            <ChevronRight size={14} className="opacity-0 -translate-x-2 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all text-teal-500" />
-                          </Link>
-                        ))}
+
+
+                    {tech?.show_points && tech?.points?.length > 0 && (
+
+                      <div className="border-t border-gray-100 dark:border-white/5 px-4 mb-6">
+
+
+                        <p className="text-[10px] font-black uppercase tracking-widest text-black mb-3">
+                          {tech.subtitle || "Key Capabilities"}
+                        </p>
+
+
+
+                        <div className="flex flex-col gap-2">
+
+                          {tech.points.map((item, idx) => (
+
+                            <div
+                              key={idx}
+                              className="flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-gray-300 py-1"
+                            >
+
+                              <span className="flex items-center gap-2">
+
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-200" />
+
+                                {item.point}
+
+                              </span>
+
+
+                              <ChevronRight
+                                size={14}
+                                className="text-teal-500"
+                              />
+
+                            </div>
+
+                          ))}
+
+                        </div>
+
                       </div>
+
+                    )}
+
+
+
+                    {/* CTA */}
+
+                    <div className="mt-auto py-4 border-t px-4 border-gray-100 dark:border-white/5 flex justify-between items-center">
+
+                      <Link
+                        href="/contact"
+                        className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-teal-600 hover:text-teal-700"
+                      >
+
+                        Launch Tech Spec
+
+                        <ArrowRight size={14} />
+
+                      </Link>
+
+
                     </div>
 
-                    {/* CTA link */}
-                    <div className="mt-auto py-4 border-t px-4 border-gray-100 dark:border-white/5 flex justify-between items-center">
-                      <Link
-                        href={`/technology-and-operations/${tech.items[0]?.slug}`}
-                        className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-teal-600 hover:text-teal-700 transition-colors"
-                      >
-                        Launch Tech Spec <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                      {/* <span className="text-[9px] uppercase tracking-wider text-gray-400 font-bold">KDS Telemetry</span> */}
-                    </div>
+
                   </div>
+
+
                 </div>
-              );
+
+              )
+
             })}
+
+
           </div>
         </div>
       </section>
 
-      {/* ─── INFRASTRUCTURE SHOWCASE ────────────────────────────────────────── */}
+        {/* ─── INFRASTRUCTURE SHOWCASE ────────────────────────────────────────── */}
       <section className="section-padding bg-gray-50 dark:bg-[#161b22]/30 border-t border-gray-200 dark:border-white/5 transition-colors duration-500">
+
         <div className="container mx-auto px-6 max-w-7xl">
+
+
+          {/* Header */}
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-16">
+
+
             <div className="max-w-2xl">
+
               <span className="inline-block text-blue-800 font-black text-xs uppercase tracking-[0.2em] mb-3">
-                Digital Infrastructure
+
+                {proven_deplo?.subtitle}
+
               </span>
+
+
               <h2
                 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight"
-                style={{ fontFamily: "Outfit, sans-serif" }}
+                style={{ fontFamily: "Outfit,sans-serif" }}
               >
-                Modern Technical Core
+
+                {proven_deplo?.title}
+
               </h2>
+
+
               <p className="text-[#8b949e] text-base mt-4 leading-relaxed">
-                We combine physical security, automated compliance logging, and live GPS telemetry to guarantee direct accountability on the ground.
+
+                {proven_deplo?.description?.replace(/<[^>]+>/g, "")}
+
               </p>
+
             </div>
+
+
+
             <div>
-              <Button href="/contact" className="bg-blue-700 hover:bg-teal-700 border-none font-bold flex items-center gap-2">
-                Request Architecture Brief <TrendingUp size={16} />
+
+              <Button
+                href="/contact"
+                className="bg-blue-700 hover:bg-teal-700 border-none font-bold flex items-center gap-2"
+              >
+
+                Request Architecture Brief
+
+                <TrendingUp size={16} />
+
               </Button>
+
             </div>
+
+
           </div>
+
+
+
+
+
+          {/* Cards */}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {techShowcase.map((ts, i) => {
-              const ShowIcon = ts.icon;
+
+
+            {proven_deplo?.extra?.map((ts, i) => {
+
+
               return (
-                <div key={i} className="group bg-white dark:bg-[#0d1117] rounded-3xl overflow-hidden border border-gray-200 dark:border-white/5 hover:border-teal-500/30 transition-all duration-300 hover:shadow-xl">
-                  <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={ts.image}
-                      alt={ts.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <span className="absolute top-4 left-4 bg-blue-900/80 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-wider py-1 px-3 rounded-full flex items-center gap-2">
-                      <ShowIcon size={12} />
-                      {ts.category}
-                    </span>
-                  </div>
+
+                <div
+                  key={i}
+                  className="group bg-white dark:bg-[#0d1117] rounded-3xl overflow-hidden border border-gray-200 dark:border-white/5 hover:border-teal-500/30 transition-all duration-300 hover:shadow-xl"
+                >
+
+
+
+                  {/* Image */}
+
+                  {ts?.show_image && (
+
+                    <div className="relative h-48 overflow-hidden">
+
+
+                      <img
+
+                        src={`${IMAGE_URL}/${ts.image}`}
+
+                        alt={ts.alt_text || ts.key}
+
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+
+                      />
+
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+
+
+
+                      <span className="absolute top-4 left-4 bg-blue-900/80 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-wider py-1 px-3 rounded-full">
+
+                        {ts.key}
+
+                      </span>
+
+
+                    </div>
+
+                  )}
+
+
+
+
+
                   <div className="p-6">
-                    <h3 className="text-gray-900 px-4 dark:text-white font-bold text-lg mb-3 tracking-tight group-hover:text-teal-600 transition-colors" style={{ fontFamily: "Outfit, sans-serif" }}>
-                      {ts.title}
+
+
+                    <h3
+                      className="text-gray-900 px-4 dark:text-white font-bold text-lg mb-3 tracking-tight group-hover:text-teal-600 transition-colors"
+                      style={{ fontFamily: "Outfit,sans-serif" }}
+                    >
+
+                      {ts.value}
+
                     </h3>
+
+
+
                     <p className="text-gray-600 px-4 dark:text-[#8b949e] text-sm leading-relaxed mb-6">
-                      {ts.desc}
+
+                      {ts.subtitle}
+
                     </p>
-                    <Link href="/contact" className="inline-flex items-center gap-1 text-xs p-4 font-bold uppercase tracking-wider text-teal-600 hover:text-teal-700">
-                      Speak with Architect <ChevronRight size={14} />
+
+
+
+
+
+                    {/* Points */}
+
+                    {ts?.show_points && ts?.points?.map((p, index) => (
+
+                      <div
+                        key={index}
+                        className="px-4 text-xs font-semibold text-gray-500 mb-2"
+                      >
+
+                        • {p.point}
+
+                      </div>
+
+                    ))}
+
+
+
+
+                    <Link
+
+                      href={
+                        ts?.show_url_path
+                          ? ts.url_path
+                          : "/contact"
+                      }
+
+                      className="inline-flex items-center gap-1 text-xs p-4 font-bold uppercase tracking-wider text-teal-600 hover:text-teal-700"
+
+                    >
+
+                      Speak with Architect
+
+                      <ChevronRight size={14} />
+
                     </Link>
+
+
                   </div>
+
+
                 </div>
-              );
+
+              )
+
             })}
+
+
+
           </div>
+
+
         </div>
+
       </section>
 
-      {/* ─── FINAL CTA ────────────────────────────────────────────── */}
+
+  {/* ─── FINAL CTA ────────────────────────────────────────────── */}
       <section className="section-padding relative overflow-hidden bg-gradient-to-br from-teal-900 to-[#0d47a1]">
         <div
           className="absolute inset-0 opacity-10"
@@ -338,6 +682,10 @@ export default function TechnologyPage() {
           </div>
         </div>
       </section>
+
+
+
+     
     </main>
   );
 }

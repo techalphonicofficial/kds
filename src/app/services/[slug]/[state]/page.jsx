@@ -1,4 +1,5 @@
-import { getServerData } from "@/lib/data";
+import { getByState, getServerData } from "@/lib/data";
+import { API_ENDPOINTS } from "@/config/api";
 import { notFound } from "next/navigation";
 import {
   CheckCircle,
@@ -15,79 +16,168 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 // ─── Metadata ──────────────────────────────────────────────────────────────
 export async function generateMetadata({ params }) {
   const { slug, state } = await params;
-  const data = await getServerData();
-  const service = data.services.find((s) => s.slug === slug);
-  if (!service) return { title: "Service Not Found" };
 
-  const stateData = service.locations?.find((l) => l.state === state);
-  if (!stateData) return { title: "Location Not Found" };
+  // Try to load dynamic data from API
+  let apiData = null;
+  try {
+    const response = await getByState(API_ENDPOINTS.SERVICES_DETAIL_SLUG, slug, state);
+    if (response?.status) {
+      apiData = response.data;
+    }
+  } catch (error) {
+    console.error("Error fetching service state metadata:", error);
+  }
 
-  const title = `${service.title} in ${stateData.stateLabel}`;
-  const description = `KDS International provides trusted ${service.title} across ${stateData.stateLabel}. We serve ${stateData.cities.map((c) => c.label).join(", ")} and surrounding areas with fully compliant manpower solutions.`;
+  // Fallback to local data if needed
+  const localData = await getServerData();
+  const service = localData.services.find((s) => s.slug === slug);
+  const stateData = service?.locations?.find((l) => l.state === state);
+
+  if (!apiData && !service) return { title: "Service Not Found" };
+
+  const title = apiData?.meta_title || (apiData?.title) || (service && stateData ? `${service.title} in ${stateData.stateLabel}` : `${slug} in ${state}`);
+  const description = apiData?.meta_description || (service && stateData ? `KDS International provides trusted ${service.title} across ${stateData.stateLabel}. We serve ${stateData.cities.map((c) => c.label).join(", ")} and surrounding areas with fully compliant manpower solutions.` : "");
+  const keywords = apiData?.meta_keyword || "";
 
   return {
     title,
     description,
+    keywords,
     openGraph: {
       title: `${title} | KDS International`,
       description,
+    },
+    other: {
+      "script:type": typeof apiData?.meta_schema === "string"
+        ? apiData.meta_schema
+        : JSON.stringify(apiData?.meta_schema || []),
     },
   };
 }
 
 // ─── Static Params ─────────────────────────────────────────────────────────
-export async function generateStaticParams() {
-  const data = await getServerData();
-  const params = [];
-
-  for (const service of data.services) {
-    if (!service.locations) continue;
-    for (const loc of service.locations) {
-      params.push({ slug: service.slug, state: loc.state });
-    }
-  }
-
-  return params;
-}
+// export async function generateStaticParams() {
+//   const data = await getServerData();
+//   const params = [];
+// 
+//   for (const service of data.services) {
+//     if (!service.locations) continue;
+//     for (const loc of service.locations) {
+//       params.push({ slug: service.slug, state: loc.state });
+//     }
+//   }
+// 
+//   return params;
+// }
 
 // ─── Page Component ─────────────────────────────────────────────────────────
 export default async function ServiceStatePage({ params }) {
   const { slug, state } = await params;
-  const data = await getServerData();
-  const service = data.services.find((s) => s.slug === slug);
-  if (!service) notFound();
 
-  const stateData = service.locations?.find((l) => l.state === state);
-  if (!stateData) notFound();
+  // Fetch API data
+  let serviceData = null;
+  try {
+    const response = await getByState(API_ENDPOINTS.SERVICES_DETAIL_SLUG, slug, state);
+    console.log("statewise", response)
+    if (response?.status) {
+      serviceData = response.data;
+    }
+  } catch (error) {
+    console.error("Error fetching service state from API:", error);
+  }
 
-  const otherServices = data.services.filter((s) => s.id !== service.id).slice(0, 3);
+  // Load local data as fallback
+  const localData = await getServerData();
+  const service = localData.services.find((s) => s.slug === slug);
 
-  // Other states for cross-linking
-  const otherStates = (service.locations || []).filter((l) => l.state !== state);
+  if (!serviceData && !service) notFound();
 
-  const benefits = [
-    {
-      title: "State-Wide Coverage",
-      desc: `Full manpower coverage across all major districts of ${stateData.stateLabel}.`,
-      icon: Shield,
-    },
-    {
-      title: "Rapid Deployment",
-      desc: "Workers mobilised within 24–48 hours anywhere in the state.",
-      icon: Zap,
-    },
-    {
-      title: "Local Compliance",
-      desc: `All statutory obligations met per ${stateData.stateLabel} labour regulations.`,
-      icon: Award,
-    },
-  ];
+  const stateData = service?.locations?.find((l) => l.state === state);
+  if (!serviceData && !stateData) notFound();
+
+  // Other services & states from local fallback
+  const otherServices = service
+    ? localData.services.filter((s) => s.id !== service.id).slice(0, 3)
+    : [];
+  const otherStates = service && service.locations
+    ? service.locations.filter((l) => l.state !== state)
+    : [];
+
+  // Determine title text
+  const displayTitle = serviceData?.title || (service ? `${service.title} in ${stateData?.stateLabel || state}` : `${slug} in ${state}`);
+  let mainTitle = displayTitle;
+  let stateLabel = stateData?.stateLabel || state;
+  if (displayTitle && /\s+in\s+/i.test(displayTitle)) {
+    const parts = displayTitle.split(/\s+in\s+/i);
+    mainTitle = parts[0];
+    stateLabel = parts[1];
+  }
+
+  // Cities mapping
+  const cities = serviceData?.cities && serviceData.cities.length > 0
+    ? serviceData.cities.map((c) => ({
+      slug: c.city?.slug || c.slug,
+      label: c.city?.name || c.alt_text || c.slug,
+    }))
+    : (stateData?.cities || []).map((c) => ({
+      slug: c.slug,
+      label: c.label,
+    }));
+
+  // Benefits mapping from sections or fallback
+  const benefitSections = (serviceData?.sections || []).filter(s =>
+    s.title === "State-Wide Coverage" ||
+    s.title === "Rapid Deployment" ||
+    s.title === "Local Compliance"
+  );
+
+  const benefitsList = benefitSections.length > 0
+    ? benefitSections.map((sec) => {
+      let icon = Shield;
+      if (sec.title === "Rapid Deployment") icon = Zap;
+      if (sec.title === "Local Compliance") icon = Award;
+      return {
+        title: sec.title,
+        desc: sec.content ? sec.content.replace(/<[^>]*>/g, "") : "",
+        icon: icon,
+      };
+    })
+    : [
+      {
+        title: "State-Wide Coverage",
+        desc: `Full manpower coverage across all major districts of ${stateLabel}.`,
+        icon: Shield,
+      },
+      {
+        title: "Rapid Deployment",
+        desc: "Workers mobilised within 24–48 hours anywhere in the state.",
+        icon: Zap,
+      },
+      {
+        title: "Local Compliance",
+        desc: `All statutory obligations met per ${stateLabel} labour regulations.`,
+        icon: Award,
+      },
+    ];
 
   return (
     <main className="overflow-hidden bg-white dark:bg-[#0d1117] transition-colors duration-500">
+      {serviceData?.meta_schema?.[0]?.schema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: typeof serviceData.meta_schema[0].schema === "string"
+              ? serviceData.meta_schema[0].schema
+              : JSON.stringify(serviceData.meta_schema[0].schema)
+          }}
+        />
+      )}
+
       {/* ─── HERO ─────────────────────────────────────────────────────── */}
       <section className="relative mt-5 pt-5 pb-5 hero-bg overflow-hidden">
         <div className="absolute inset-0 hero-grid opacity-30" />
@@ -107,11 +197,11 @@ export default async function ServiceStatePage({ params }) {
               href={`/services/${slug}`}
               className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e] hover:text-[#1565c0] transition-colors"
             >
-              {service.title}
+              {service?.title || slug}
             </Link>
             <ChevronRight size={12} className="text-gray-400" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
-              {stateData.stateLabel}
+              {/* {hero_above.} */}
             </span>
           </nav>
 
@@ -122,7 +212,7 @@ export default async function ServiceStatePage({ params }) {
           >
             <MapPin size={13} className="text-[#1565c0]" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1565c0]">
-              {stateData.stateLabel}, India
+              {stateLabel}, India
             </span>
           </div>
 
@@ -134,13 +224,20 @@ export default async function ServiceStatePage({ params }) {
               className="text-5xl md:text-8xl font-black !text-gray-200 dark:text-white mb-8 leading-[0.9] tracking-tighter transition-colors duration-500"
               style={{ fontFamily: "Outfit, sans-serif" }}
             >
-              {service.title.split(" ").slice(0, -1).join(" ")} &nbsp;
-              <span className="gradient-text">in {stateData.stateLabel}</span>
+              {mainTitle} &nbsp;
+              <span className="gradient-text">in {stateLabel}</span>
             </h1>
-            <p className="text-gray-300 dark:text-[#8b949e] text-lg md:text-2xl leading-relaxed max-w-3xl italic transition-colors duration-500">
-              &ldquo;{service.shortDesc} — Available across{" "}
-              {stateData.cities.map((c) => c.label).join(", ")} and nearby areas.&rdquo;
-            </p>
+            {serviceData?.content ? (
+              <div
+                className="text-gray-300 dark:text-[#8b949e] text-lg md:text-2xl leading-relaxed max-w-3xl italic transition-colors duration-500 service-content-html"
+                dangerouslySetInnerHTML={{ __html: serviceData.content }}
+              />
+            ) : (
+              <p className="text-gray-300 dark:text-[#8b949e] text-lg md:text-2xl leading-relaxed max-w-3xl italic transition-colors duration-500">
+                &ldquo;{service?.shortDesc || ""} — Available across{" "}
+                {cities.map((c) => c.label).join(", ")} and nearby areas.&rdquo;
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -151,16 +248,16 @@ export default async function ServiceStatePage({ params }) {
           <div className="mb-12 animate-fade-in-up">
             <SectionTitle
               label="Locations"
-              title={`Cities We Serve in ${stateData.stateLabel}`}
+              title={`Cities We Serve in ${stateLabel}`}
             />
             <p className="text-gray-600 dark:text-[#8b949e] text-lg mt-4 max-w-2xl">
               Select a city to view tailored{" "}
-              <strong>{service.title}</strong> solutions specific to your area.
+              <strong>{service?.title || slug}</strong> solutions specific to your area.
             </p>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-3 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-            {stateData.cities.map((cityObj, idx) => (
+            {cities.map((cityObj, idx) => (
               <Link
                 key={cityObj.slug}
                 href={`/services/${slug}/${state}/${cityObj.slug}`}
@@ -178,7 +275,7 @@ export default async function ServiceStatePage({ params }) {
                     {cityObj.label}
                   </p>
                   <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-0">
-                    {stateData.stateLabel}
+                    {stateLabel}
                   </p>
                 </div>
                 <ArrowRight
@@ -205,83 +302,146 @@ export default async function ServiceStatePage({ params }) {
                 <div className=" dark:bg-transparent  p-4 md:p-12 rounded-[3rem] border border-gray-200 dark:border-white/5 relative overflow-hidden transition-colors duration-500">
                   <SectionTitle
                     label="State Coverage"
-                    title={`${service.title} across ${stateData.stateLabel}`}
+                    title={
+                      serviceData?.sections?.[0]?.title ||
+                      (service ? `${service.title} across ${stateLabel}` : `Coverage across ${stateLabel}`)
+                    }
                   />
-                  <p className="text-gray-600 dark:text-[#8b949e] text-xl leading-relaxed mt-3 transition-colors duration-500 italic border-l-4 border-[#1565c0] ps-3 py-2">
-                    {service.description} We have an established presence across{" "}
-                    {stateData.stateLabel}, with dedicated teams ready to serve businesses
-                    of all sizes.
-                  </p>
+                  {serviceData?.sections?.[0]?.content ? (
+                    <div
+                      className="text-gray-600 dark:text-[#8b949e] text-xl leading-relaxed mt-3 transition-colors duration-500 italic border-l-4 border-[#1565c0] ps-3 py-2 dynamic-html"
+                      dangerouslySetInnerHTML={{ __html: serviceData.sections[0].content }}
+                    />
+                  ) : (
+                    <p className="text-gray-600 dark:text-[#8b949e] text-xl leading-relaxed mt-3 transition-colors duration-500 italic border-l-4 border-[#1565c0] ps-3 py-2">
+                      {service?.description || ""} We have an established presence across{" "}
+                      {stateLabel}, with dedicated teams ready to serve businesses of all sizes.
+                    </p>
+                  )}
                 </div>
 
-                {/* Structured Content */}
-                {service.content &&
-                  service.content.map((block, idx) => (
-                    <div key={idx} className="my-3">
-                      {block.type === "heading" && (
+                {/* Structured Content & Core Capabilities */}
+                {serviceData?.sections ? (
+                  serviceData.sections.slice(1).map((sec, idx) => {
+                    // Skip benefit sections
+                    if (
+                      sec.title === "State-Wide Coverage" ||
+                      sec.title === "Rapid Deployment" ||
+                      sec.title === "Local Compliance"
+                    ) {
+                      return null;
+                    }
+
+                    return (
+                      <div key={sec.id || idx} className="space-y-6 pt-4">
+                        {sec.title && (
+                          <h3
+                            className="text-2xl font-black text-gray-900 dark:text-white tracking-tight pt-4"
+                            style={{ fontFamily: "Outfit, sans-serif" }}
+                          >
+                            {sec.title}
+                          </h3>
+                        )}
+
+                        {sec.content && (
+                          <div
+                            className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed dynamic-section-html"
+                            dangerouslySetInnerHTML={{ __html: sec.content }}
+                          />
+                        )}
+
+                        {sec.points && sec.points.length > 0 && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                            {sec.points.map((pt, pIdx) => (
+                              <div
+                                key={pIdx}
+                                className="flex items-center gap-5 p-3 bg-white dark:bg-transparent premium-glass border border-gray-200 dark:border-white/5 rounded-2xl hover:border-[#1565c0]/40 dark:hover:border-[#1565c0]/40 transition-all group duration-500"
+                              >
+                                <div className="w-10 h-10 rounded-xl bg-[#1565c0]/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                  <CheckCircle size={20} className="text-[#1565c0]" />
+                                </div>
+                                <span className="text-gray-900 dark:text-white font-black uppercase tracking-widest text-[10px] transition-colors duration-500">
+                                  {pt.text || pt}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <>
+                    {service?.content &&
+                      service.content.map((block, idx) => (
+                        <div key={idx} className="my-3">
+                          {block.type === "heading" && (
+                            <h3
+                              className="text-3xl font-black text-gray-900 dark:text-white tracking-tight pt-8"
+                              style={{ fontFamily: "Outfit, sans-serif" }}
+                            >
+                              {block.text}
+                            </h3>
+                          )}
+                          {block.type === "paragraph" && (
+                            <p className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed">
+                              {block.text}
+                            </p>
+                          )}
+                          {block.type === "takeaways" && (
+                            <div className="my-10 p-3 bg-blue-50/50 dark:bg-[#161b22]/50 border border-[#1565c0]/10 rounded-[2rem] shadow-sm relative overflow-hidden">
+                              <div className="absolute top-0 right-0 w-32 h-32 bg-[#1565c0]/5 blur-3xl" />
+                              <h4 className="text-sm font-black text-[#1565c0] uppercase tracking-widest mb-6 border-b border-[#1565c0]/20 pb-4">
+                                {block.heading || "Key Performance Metrics"}
+                              </h4>
+                              <ul className="space-y-4 my-3">
+                                {block.items.map((item, i) => (
+                                  <li key={i} className="flex gap-4 items-start py-2">
+                                    <div className="w-1.5 h-1.5 mt-2 rounded-full bg-[#1565c0] shrink-0 shadow-[0_0_8px_#1565c0]" />
+                                    <p className="text-gray-700 dark:text-[#e6edf3] font-medium text-sm leading-relaxed">
+                                      {item}
+                                    </p>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+
+                    {service?.features && (
+                      <div className="space-y-10 transition-colors duration-500 pt-4">
                         <h3
-                          className="text-3xl font-black text-gray-900 dark:text-white tracking-tight pt-8"
+                          className="text-2xl font-black text-gray-900 dark:text-white tracking-tight transition-colors duration-500 flex items-center gap-3"
                           style={{ fontFamily: "Outfit, sans-serif" }}
                         >
-                          {block.text}
+                          <div className="w-8 h-[2px] bg-[#1565c0]/30" />
+                          Core Capabilities
                         </h3>
-                      )}
-                      {block.type === "paragraph" && (
-                        <p className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed">
-                          {block.text}
-                        </p>
-                      )}
-                      {block.type === "takeaways" && (
-                        <div className="my-10 p-3 bg-blue-50/50 dark:bg-[#161b22]/50 border border-[#1565c0]/10 rounded-[2rem] shadow-sm relative overflow-hidden">
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-[#1565c0]/5 blur-3xl" />
-                          <h4 className="text-sm font-black text-[#1565c0] uppercase tracking-widest mb-6 border-b border-[#1565c0]/20 pb-4">
-                            {block.heading || "Key Performance Metrics"}
-                          </h4>
-                          <ul className="space-y-4 my-3">
-                            {block.items.map((item, i) => (
-                              <li key={i} className="flex gap-4 items-start py-2">
-                                <div className="w-1.5 h-1.5 mt-2 rounded-full bg-[#1565c0] shrink-0 shadow-[0_0_8px_#1565c0]" />
-                                <p className="text-gray-700 dark:text-[#e6edf3] font-medium text-sm leading-relaxed">
-                                  {item}
-                                </p>
-                              </li>
-                            ))}
-                          </ul>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                          {service.features.map((feature, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-5 p-3 bg-white dark:bg-transparent premium-glass border border-gray-200 dark:border-white/5 rounded-2xl hover:border-[#1565c0]/40 dark:hover:border-[#1565c0]/40 transition-all group duration-500"
+                            >
+                              <div className="w-10 h-10 rounded-xl bg-[#1565c0]/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                <CheckCircle size={20} className="text-[#1565c0]" />
+                              </div>
+                              <span className="text-gray-900 dark:text-white font-black uppercase tracking-widest text-[10px] transition-colors duration-500">
+                                {feature}
+                              </span>
+                            </div>
+                          ))}
                         </div>
-                      )}
-                    </div>
-                  ))}
-
-                {/* Core Capabilities */}
-                <div className="space-y-10 transition-colors duration-500 pt-4">
-                  <h3
-                    className="text-2xl font-black text-gray-900 dark:text-white tracking-tight transition-colors duration-500 flex items-center gap-3"
-                    style={{ fontFamily: "Outfit, sans-serif" }}
-                  >
-                    <div className="w-8 h-[2px] bg-[#1565c0]/30" />
-                    Core Capabilities
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                    {service.features.map((feature, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center gap-5 p-3 bg-white dark:bg-transparent premium-glass border border-gray-200 dark:border-white/5 rounded-2xl hover:border-[#1565c0]/40 dark:hover:border-[#1565c0]/40 transition-all group duration-500"
-                      >
-                        <div className="w-10 h-10 rounded-xl bg-[#1565c0]/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                          <CheckCircle size={20} className="text-[#1565c0]" />
-                        </div>
-                        <span className="text-gray-900 dark:text-white font-black uppercase tracking-widest text-[10px] transition-colors duration-500">
-                          {feature}
-                        </span>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    )}
+                  </>
+                )}
               </div>
 
               {/* Benefits */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pt-4 border-t border-gray-200 dark:border-white/5 transition-colors duration-500">
-                {benefits.map((benefit, idx) => (
+                {benefitsList.map((benefit, idx) => (
                   <div key={idx} className="group">
                     <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-[#161b22] border border-gray-200 dark:border-white/5 flex items-center justify-center mb-3 group-hover:bg-[#1565c0] transition-all duration-500 shadow-xl">
                       <benefit.icon
@@ -312,10 +472,10 @@ export default async function ServiceStatePage({ params }) {
               <div className="bg-gray-50 dark:bg-transparent !premium-glass p-4 rounded-[2.5rem] border border-gray-200 dark:border-white/5 transition-colors duration-500 mb-3">
                 <h3 className="text-gray-900 dark:text-white font-black text-xs uppercase tracking-[0.3em] mb-3 flex items-top gap-2 transition-colors duration-500">
                   <Building size={32} className="text-[#1565c0] mt-1" />
-                  Cities in {stateData.stateLabel}
+                  Cities in {stateLabel}
                 </h3>
                 <div className="space-y-2">
-                  {stateData.cities.map((cityObj) => (
+                  {cities.map((cityObj) => (
                     <Link
                       key={cityObj.slug}
                       href={`/services/${slug}/${state}/${cityObj.slug}`}
@@ -403,10 +563,10 @@ export default async function ServiceStatePage({ params }) {
                     className="text-3xl font-black text-white mb-6 tracking-tighter"
                     style={{ fontFamily: "Outfit, sans-serif" }}
                   >
-                    Ready in {stateData.stateLabel}?
+                    Ready in {stateLabel}?
                   </h3>
                   <p className="text-white/80 mb-10 text-sm leading-relaxed font-medium italic">
-                    &ldquo;Our teams across {stateData.stateLabel} deploy skilled workers
+                    &ldquo;Our teams across {stateLabel} deploy skilled workers
                     within 24–48 hours of project approval.&rdquo;
                   </p>
                   <Button
@@ -416,7 +576,7 @@ export default async function ServiceStatePage({ params }) {
                     Get Fast-Track Quote
                   </Button>
                   <p className="text-white/40 text-[9px] mt-3 mb-0 uppercase font-black tracking-widest">
-                    Serving all of {stateData.stateLabel}
+                    Serving all of {stateLabel}
                   </p>
                 </div>
               </div>
@@ -435,11 +595,11 @@ export default async function ServiceStatePage({ params }) {
             style={{ fontFamily: "Outfit, sans-serif" }}
           >
             Your Partner Across &nbsp;
-            <span className="text-[#1565c0]">{stateData.stateLabel}.</span>
+            <span className="text-[#1565c0]">{stateLabel}.</span>
           </h2>
           <p className="text-gray-600 dark:text-[#8b949e] text-xl mb-4 max-w-2xl mx-auto italic transition-colors duration-500">
-            KDS International provides mission-critical {service.title.toLowerCase()} across{" "}
-            {stateData.stateLabel} — with full compliance and zero disruption.
+            KDS International provides mission-critical {(service?.title || slug).toLowerCase()} across{" "}
+            {stateLabel} — with full compliance and zero disruption.
           </p>
           <div className="flex flex-wrap justify-center gap-6">
             <Button

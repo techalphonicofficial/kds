@@ -305,7 +305,7 @@ const HeroBanner = ({ service }) => {
             </div>
           </div> */}
 
-          
+
           {/* Right — Enquiry Form */}
 
           {/* Right — Compact Enquiry Form */}
@@ -321,7 +321,7 @@ const HeroBanner = ({ service }) => {
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-r from-[#0d47a1]/80 via-[#1565c0]/50 to-transparent" />
-                
+
                 <div className="absolute bottom-3 left-4">
                   <h3 className="text-white text-lg font-black leading-none">
                     Enquire Now

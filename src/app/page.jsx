@@ -1,7 +1,10 @@
 import { getServerData } from "@/lib/data";
 import { generateMockData } from "@/lib/mockDataGenerator"
 import Link from "next/link";
+import { getData } from "@/lib/data";
+import { API_ENDPOINTS } from "@/config/api";
 import Carousel from "@/components/ui/Carousel";
+import { IMAGE_URL } from "@/config/api";
 import {
   ArrowRight, CheckCircle, Phone, Mail, MapPin,
   Clock, Shield, Users, Award, ChevronRight,
@@ -10,23 +13,28 @@ import {
   Building2,
   Hotel,
   HeartPulse,
-  BriefcaseBusiness
+  BriefcaseBusiness, Quote, Star
 } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { getPageSEO } from "@/lib/metadata";
+
 import Testimonial from "@/components/common/testimonial/Testimonial";
 import Technology from "@/components/common/technology/Technology";
 import Solutions from "@/components/common/solutions/Solutions";
 import HeroBanner from "@/components/ui/heroBanner";
 import EnquireButton from "@/components/layout/EnquiryButton";
 import { solutionsData, technologyData } from './../lib/solutionsAndTechData';
+import FAQSection from "@/components/common/FAQ";
 
 
-export const metadata = {
-  title: "KDS International Pvt. Ltd. | Most Trusted Manpower Services in Delhi",
-  description:
-    "KDS International Pvt. Ltd. — Delhi's most trusted manpower staffing partner providing skilled, semi-skilled, unskilled, contract, industrial & labour manpower services across all industries.",
-  keywords: ["manpower services delhi", "staffing agency delhi", "skilled manpower delhi", "labour supply delhi", "KDS International"],
-};
+// export const metadata = {
+//   title: "KDS International Pvt. Ltd. | Most Trusted Manpower Services in Delhi",
+//   description:
+//     "KDS International Pvt. Ltd. — Delhi's most trusted manpower staffing partner providing skilled, semi-skilled, unskilled, contract, industrial & labour manpower services across all industries.",
+//   keywords: ["manpower services delhi", "staffing agency delhi", "skilled manpower delhi", "labour supply delhi", "KDS International"],
+// };
+
+
 
 const serviceIconMap = {
   "skilled-manpower": Wrench,
@@ -46,137 +54,76 @@ const iconMap = {
   BriefcaseBusiness,
 };
 
+export async function generateMetadata() {
+
+  const page = await getPageSEO("home");
+
+  return {
+    title: page?.meta_title || "KDS International",
+
+    description:
+      page?.meta_description || "",
+
+    keywords:
+      page?.meta_keywords?.split(",") || [],
+
+    openGraph: {
+      title: page?.meta_title,
+      description: page?.meta_description,
+      images: [
+        {
+          url: `${IMAGE_URL}/${page.image}`,
+        }
+      ],
+    },
+
+    other: {
+      "script:type": JSON.stringify(page?.meta_schema || [])
+    }
+  };
+}
+
 export default async function HomePage() {
+  const FAQData = await getData(API_ENDPOINTS.FAQ);
+  const homeData = await getData(API_ENDPOINTS.HOME);
+  const Testimonials = await getData(API_ENDPOINTS.TESTIMONIALS)
+  console.log("testiomonials",Testimonials);
+  const page = await getPageSEO("home");
+
+  const sections = homeData.data.sections.reduce(
+    (acc, section) => {
+      acc[section.section_key] = section;
+      return acc;
+    },
+    {}
+  );
+  const about = sections.About_kds_International;
+  const our_services = sections.our_services;
+  const industries = sections.industry_serve;
+  const technology = sections.technology_operations;
+  const solutions = sections.solutions;
+  const why_kds = sections.why_kds;
+  const blogs = sections.blogs;
+  const our_process = sections.our_process;
+  const testimonial = Testimonials.data;
+
+
+
   const data = await getServerData();
   // const soluData = await generateMockData()
- 
 
   return (
     <main className="overflow-hidden bg-white dark:bg-[#06111e] transition-colors duration-500">
-
-      {/* ══════════════════════════════════════════════
-          HERO SECTION
-      ══════════════════════════════════════════════ */}
-       {/* <section className="relative min-h-screen flex items-center overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-500 "
-          style={{ backgroundImage: "url('/hero-bg.png')" }} />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#020d1f]/95 via-[#06111e]/85 to-[#06111e]/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#06111e] via-transparent to-transparent" />
-
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: "linear-gradient(rgba(21,101,192,1) 1px, transparent 1px), linear-gradient(90deg, rgba(21,101,192,1) 1px, transparent 1px)",
-          backgroundSize: "60px 60px"
-        }} />
-
-        <div className="absolute top-20 right-20 w-[600px] h-[600px] bg-[#1565c0]/10 rounded-full blur-[120px] pointer-events-none" />
-
-        <div className="container mx-auto px-6 max-w-7xl relative z-10 pt-5 mt-5 pb-4">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center ">
-
-            <div className="lg:col-span-7 space-y-7 " data-aos="fade-right">
-              <div className="inline-flex items-center gap-2 bg-[#1565c0]/15 border border-[#1565c0]/30 backdrop-blur-sm rounded-full px-5 py-2 mb-3">
-                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-[0_0_6px_rgba(74,222,128,0.8)]" />
-                <span className="text-[10px] font-black text-white/90 uppercase tracking-[0.25em]">
-                  Delhi's Most Trusted Manpower Agency
-                </span>
-              </div>
-
-              <h1 className="text-5xl md:text-6xl xl:text-7xl font-black text-white leading-[1.04] tracking-tight" style={{ fontFamily: "Outfit, sans-serif" }}>
-                Reliable 
-                <span className="mx-3  text-[#90caf9]">Manpower</span>
-                Solutions.
-              </h1>
-
-              <p className="text-gray-300 text-lg md:text-xl leading-relaxed max-w-2xl">
-                KDS International Pvt. Ltd. provides skilled, semi-skilled, unskilled, contract, industrial, and labour manpower services across all industries in Delhi NCR — with full compliance and zero hassle.
-              </p>
-
-              <div className="grid grid-cols-2 gap-3 max-w-xl">
-                {[
-                  "Workers deployed within 24-48 hrs",
-                  "PF, ESIC & labour law compliant",
-                  "All skill levels covered",
-                  "Backup teams always on standby",
-                ].map((feat, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <CheckCircle size={15} className="text-green-400 shrink-0" />
-                    <span className="text-gray-300 text-sm font-medium">{feat}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap gap-4 pt-3">
-                <Button href="/contact" size="lg"
-                  className="bg-gradient-to-r from-[#0d47a1] to-[#1565c0] text-white hover:from-[#1565c0] hover:to-[#1976d2] border-none shadow-2xl shadow-[#1565c0]/30 font-black uppercase tracking-wider px-3 py-3"> 
-                  Get Hiring Consultation
-                </Button>
-                <a href="tel:+919899184918"
-                  className="inline-flex items-center gap-2 px-3 py-3 bg-white/5 border border-white/20 text-white text-sm font-bold rounded-xl hover:bg-white/10 hover:border-white/40 transition-all backdrop-blur-sm">
-                  <Phone size={16} className="text-[#90caf9]" />
-                  +91 9899184918
-                </a>
-              </div>
-
-              <div className=" mt-4 flex flex-wrap gap-8 pt-4 border-t border-white/10">
-                {data.stats.map((stat) => (
-                  <div key={stat.id}>
-                    <p className="text-2xl md:text-3xl font-black text-white leading-none">{stat.value}</p>
-                    <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-1">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="lg:col-span-5" data-aos="fade-left" data-aos-delay="200">
-              <div className=" bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl shadow-[#1565c0]/10">
-                
-                <div className="h-1 w-full bg-gradient-to-r from-[#0d47a1] via-[#1565c0] to-[#1976d2] rounded-full mb-8 mt-0" />
-
-                <div className="p-4">
-                  <h3 className="text-white font-black text-xl mb-2" style={{ fontFamily: "Outfit, sans-serif" }}>
-                  Get a Free Consultation
-                </h3>
-                <p className="text-gray-400 text-sm mb-6">Tell us your manpower requirements and we'll respond within 2 hours.</p>
-
-                <div className="space-y-3">
-                  {[
-                    { icon: Phone, label: "Call Us Directly", value: "+91 9899184918", href: "tel:+919899184918" },
-                    { icon: Mail, label: "Email Us", value: "info@kdsinternational.org", href: "mailto:info@kdsinternational.org" },
-                    { icon: MapPin, label: "Our Office", value: "Laxmi Nagar, Delhi - 110092", href: "#" },
-                  ].map((item, i) => (
-                    <a key={i} href={item.href}
-                      className="flex items-center gap-4 p-4 rounded-2xl mb-3 bg-white/5 hover:bg-[#1565c0]/20 border border-white/5 hover:border-[#1565c0]/30 transition-all cursor-pointer group d-flex align-items-center">
-                      <div className="w-10 h-10 rounded-xl bg-[#1565c0]/20 flex items-center justify-center shrink-0 group-hover:bg-[#1565c0] transition-all">
-                        <item.icon size={17} className="text-[#90caf9] group-hover:text-white transition-colors" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-white uppercase tracking-widest font-bold mb-1">{item.label}</p>
-                        <p className="text-white text-sm font-semibold mb-0">{item.value}</p>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-
-                <Link href="/contact"
-                  className="block mt-2 w-full py-4 text-center bg-gradient-to-r from-[#0d47a1] to-[#1565c0] hover:from-[#1565c0] hover:to-[#1976d2] text-white text-sm font-black uppercase tracking-widest rounded-2xl transition-all shadow-lg shadow-[#1565c0]/20">
-                  Request Manpower Today →
-                </Link>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white dark:from-[#06111e] to-transparent" />
-      </section>  */}
-
-      {/* carausal */}
-
-         <EnquireButton />
-
-      <Carousel />
-
-
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            page?.meta_schema?.[0]?.schema || {}
+          )
+        }}
+      />
+      <EnquireButton />
+      <Carousel data={sections.hero_section} />
       {/* <HeroBanner /> */}
       {/* ══════════════════════════════════════════════
           STATS BAR
@@ -212,58 +159,39 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center ">
 
             {/* Left: Text */}
-            <div className=" gap-4  w-full h-full  ">
-              {/* {data.whyChooseUs.map((item, i) => {
-                const icons = [Clock, Users, Shield, Award, Briefcase, Award];
-                const Icon = icons[i % icons.length];
-                return (
-                  <div key={i}
-                    className="bg-white dark:bg-[#0d1a2d] rounded-2xl p-4 border border-gray-200 dark:border-[#1565c0]/10 hover:border-[#1565c0]/30 dark:hover:border-[#1565c0]/30 transition-all duration-300 group hover:shadow-md dark:hover:shadow-none">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0d47a1] to-[#1565c0] flex items-center justify-center mb-3 shadow-md">
-                      <Icon size={18} className="text-white" />
-                    </div>
-                    <h4 className="font-black text-gray-900 dark:text-white text-sm mb-1.5 group-hover:text-[#1565c0] dark:group-hover:text-[#90caf9] transition-colors">{item.title}</h4>
-                    <p className="text-gray-500 text-[14px] dark:text-gray-400 text-xs leading-relaxed transition-colors duration-300">{item.desc}</p>
-                  </div>
-                );
-              })} */}
-              <img src="/it-services-small1.png" alt="About KDS International" className=" w-full h-full object-contain rounded-2xl" />
+            <div className=" gap-4  w-full h-full ">
+             
+              <img
+                src={
+                  about?.image
+                    ? `${IMAGE_URL}/${about.image}`
+                    : "/it-services-small1.png"
+                }
+                alt={about?.alt_text || "About KDS International"}
+                className="w-full h-full object-cover"
+              />
             </div>
 
 
             {/* Right: Why Choose Us cards */}
-            <div className="space-y-7 ">
+            <div className="space-y-7">
               <div className="space-y-3">
                 <span className="inline-block text-[11px] font-black text-[#1565c0] dark:text-[#90caf9] uppercase tracking-[0.3em] border border-[#1565c0]/30 bg-[#1565c0]/5 px-4 py-2 rounded-full">
-                  About KDS International
+                  {about.title}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white leading-tight tracking-tight transition-colors duration-500 mt-2" style={{ fontFamily: "Outfit, sans-serif" }} data-aos="fade-up">
-                  Delhi's Premier<br />
-                  <span className="text-[#1565c0] dark:text-[#90caf9]">Manpower Partner</span>
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed transition-colors duration-500">
-                  KDS International Pvt. Ltd. is an established manpower provider in Delhi, delivering complete workforce solutions across industries with a commitment to quality, compliance, and reliability.
-                </p>
-              </div>
-
-              <p className="text-gray-600 dark:text-gray-400 leading-relaxed transition-colors duration-500">
-                Our model is built on understanding each client's unique work profiles and industry challenges. From temporary manpower to full staff outsourcing, we deliver everything under one roof — prompt deployment, compliance assurance, and ongoing efficiency evaluation.
-              </p>
-
-              <div className="space-y-3.5">
-                {[
-                  "Workers mobilised within 24-48 hours from our extensive database",
-                  "All statutory compliance — PF, ESIC, wage documentation — fully managed",
-                  "Covering skilled, semi-skilled, unskilled, industrial, and labour supply",
-                  "Dedicated backup teams to ensure zero operational disruption",
-                ].map((point, i) => (
-                  <div key={i} data-aos="fade-up" data-aos-delay={i * 100} className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-[#1565c0]/10 flex items-center justify-center shrink-0 mt-0.5 border border-[#1565c0]/20">
-                      <CheckCircle size={13} className="text-[#1565c0] dark:text-[#90caf9]" />
-                    </div>
-                    <p className="text-gray-700 dark:text-gray-300 text-sm font-medium leading-relaxed transition-colors duration-500">{point}</p>
-                  </div>
-                ))}
+                <h1
+                  className="text-xl md:text-2xl lg:!text-3xl font-black text-gray-900 dark:text-white transition-colors duration-500 my-2"
+                  style={{ fontFamily: "Outfit, sans-serif" }}
+                  data-aos="fade-up"
+                >
+                  {about.subtitle}
+                </h1>
+                <div
+                  className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed transition-colors duration-500"
+                  dangerouslySetInnerHTML={{
+                    __html: about.description,
+                  }}
+                />
               </div>
 
               <div className="flex flex-wrap gap-4">
@@ -275,6 +203,7 @@ export default async function HomePage() {
                   className="inline-flex items-center gap-2 px-3 py-3 border-2 border-[#1565c0]/30 text-[#1565c0] dark:text-[#90caf9] text-sm font-bold rounded-xl hover:bg-[#1565c0]/5 transition-all">
                   <Phone size={15} />
                   Call Us Now
+                  {about.key}
                 </a>
               </div>
             </div>
@@ -291,8 +220,8 @@ export default async function HomePage() {
         {/* BACKGROUND IMAGE */}
         <div className="absolute inset-0">
           <img
-            src="/hostpital.png"
-            alt="background"
+            src={`${IMAGE_URL}/${our_services.background_image}`}
+            alt={our_services.alt_text}
             className="w-full h-full object-cover"
           />
 
@@ -310,23 +239,24 @@ export default async function HomePage() {
               <div className="space-y-3">
 
                 <span className="inline-block text-[11px] font-black text-[#90caf9] uppercase tracking-[0.3em] border border-[#90caf9]/30 bg-[#90caf9]/10 px-4 py-2 rounded-full">
-                  Our Services
+                  {our_services.title}
                 </span>
 
                 <h2
                   className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight mt-2"
                   style={{ fontFamily: "Outfit, sans-serif" }}
                 >
-                  Complete Manpower
+                  {our_services.subtitle}
                   <br />
-                  <span className="text-[#90caf9]">
-                    Solutions
-                  </span>
+
                 </h2>
 
-                <p className="text-gray-300 max-w-xl leading-relaxed">
-                  From skilled technicians to general labour supply — all workforce categories covered under one roof with full compliance management.
-                </p>
+                <div
+                  className="text-gray-300 max-w-3xl leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html: our_services?.description || "",
+                  }}
+                />
 
               </div>
 
@@ -346,7 +276,7 @@ export default async function HomePage() {
             {/* SERVICES GRID */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 
-              {data.services.map((service, i) => {
+              {our_services.extra.map((service, i) => {
 
                 const Icon =
                   serviceIconMap[service.slug] || Briefcase;
@@ -363,8 +293,8 @@ export default async function HomePage() {
                 return (
 
                   <Link
-                    key={service.id}
-                    href={`/services/${service.slug}`}
+                    key={service.key}
+                    href={`/services/${service.url_path}`}
                     data-aos="fade-up"
                     data-aos-delay={i * 100}
                     className="group relative bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 hover:border-[#90caf9]/40 transition-all duration-300 hover:shadow-2xl hover:shadow-[#1565c0]/10 hover:-translate-y-1 overflow-hidden"
@@ -389,12 +319,12 @@ export default async function HomePage() {
 
                       {/* TITLE */}
                       <h3 className="font-black text-white text-lg mb-3 group-hover:text-[#90caf9] transition-colors duration-300">
-                        {service.title}
+                        {service.key}
                       </h3>
 
                       {/* DESC */}
                       <p className="text-gray-300 text-sm leading-relaxed mb-5 line-clamp-3">
-                        {service.shortDesc}
+                        {service.value}
                       </p>
 
                       {/* BUTTON */}
@@ -432,25 +362,38 @@ export default async function HomePage() {
 
         <div className="container mx-auto px-6 max-w-7xl relative z-10">
           <div className="text-center mb-14">
-            <span className="inline-block text-[11px] font-black text-[#1565c0] uppercase tracking-[0.3em] border border-[#1565c0]/30 bg-[#1565c0]/10 px-4 py-2 rounded-full mb-4">
-              Industries We Serve
-            </span>
-            <h2 className="text-4xl md:text-5xl font-black text-white leading-tight mb-4" style={{ fontFamily: "Outfit, sans-serif" }}>
-              Manpower Across<br />
-              <span className="text-[#1565c0]">Every Sector</span>
-            </h2>
-            <p className="text-gray max-w-2xl mx-auto leading-relaxed">
-              We supply trained, compliance-ready workers to businesses across a wide range of industries in Delhi NCR.
-            </p>
+
+            <span
+              className="inline-block text-[11px] font-black text-[#1565c0] uppercase tracking-[0.3em] border border-[#1565c0]/30 bg-[#1565c0]/10 px-4 py-2 rounded-full mb-4"
+              dangerouslySetInnerHTML={{
+                __html: industries?.title || "",
+              }}
+            />
+
+            <h2
+              className="text-4xl md:text-5xl font-black !text-[#1565c0] leading-tight mb-4"
+              style={{ fontFamily: "Outfit, sans-serif" }}
+              dangerouslySetInnerHTML={{
+                __html: industries?.subtitle || "",
+              }}
+            />
+
+            <p
+              className="text-gray-600 max-w-2xl mx-auto leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: industries?.description || "",
+              }}
+            />
+
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {data.industries.map((ind, i) => {
+            {industries.extra.map((ind, i) => {
               const Icon = iconMap[ind.stat];
 
               return (
                 <div
-                  key={ind.id}
+                  key={ind.key}
                   data-aos="fade-up"
                   data-aos-delay={i * 100}
                   className="group [perspective:1200px] h-[480px]"
@@ -464,26 +407,24 @@ export default async function HomePage() {
 
                       <div
                         className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                        style={{ backgroundImage: `url('${ind.img}')` }}
+                        style={{ backgroundImage: `url('${IMAGE_URL}/${ind.image}')` }}
                       />
 
                       <div className="absolute inset-0 bg-gradient-to-t from-[#020c18]/90 via-[#020c18]/50 to-[#1565c0]/10" />
 
                       {/* ICON */}
 
-                      <div className="absolute top-4 right-4 bg-[#1565c0]/90 backdrop-blur-sm text-white px-3 py-2 rounded-full">
-                        <Icon size={25} />
-                      </div>
+
 
                       {/* CONTENT */}
 
                       <div className="absolute bottom-0 left-0 right-0 p-4">
                         <h3 className="text-white font-black text-lg mb-2 leading-tight">
-                          {ind.name}
+                          {ind.key}
                         </h3>
 
                         <p className="text-gray-300 text-sm leading-relaxed line-clamp-3">
-                          {ind.desc.substring(0, 120)}...
+                          {ind.value.substring(0, 120)}...
                         </p>
 
                         <div className="flex items-center gap-1.5 text-[#90caf9] text-[10px] font-black uppercase tracking-widest mt-3">
@@ -498,17 +439,17 @@ export default async function HomePage() {
                     <div className="absolute inset-0 rounded-2xl overflow-hidden border border-[#1565c0]/30 p-6 flex flex-col justify-between [transform:rotateY(180deg)] [backface-visibility:hidden] bg-gradient-to-r from-white via-[#f4f8ff] to-[#dbeafe]">
 
                       <div className="p-3">
-
+                        {/* 
                         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#1565c0] to-[#42a5f5] flex items-center justify-center mb-5">
                           <Icon size={28} className="text-white" />
-                        </div>
+                        </div> */}
 
                         <h3 className="text-gray font-black text-2xl mb-4">
-                          {ind.name}
+                          {ind.key}
                         </h3>
 
                         <p className="text-gray text-sm leading-relaxed">
-                          {ind.desc}
+                          {ind.value}
                         </p>
 
                       </div>
@@ -526,52 +467,114 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-{/* technology */}
-  <Technology />
+      {/* technology */}
+      <Technology data={technology} />
       {/* solutions */}
-      <Solutions/>
-    
+      <Solutions data={solutions} />
+
       {/* ══════════════════════════════════════════════
           WHY CHOOSE KDS
       ══════════════════════════════════════════════ */}
       <section className="bg-gradient-to-br from-[#0d47a1] via-[#1565c0] to-[#1976d2] dark:bg-[#06111e] py-5 md:py-28 transition-colors duration-500">
         <div className="container mx-auto px-6 max-w-7xl">
+
           <div className="text-center mb-14">
-            <span className="inline-block text-[11px] font-black text-white dark:text-[#90caf9] uppercase tracking-[0.3em] border border-[#1565c0]/30 bg-[#1565c0]/5 px-4 py-2 rounded-full mb-4">
-              Why KDS International
+
+            <span className="inline-block text-[11px] font-black text-white uppercase tracking-[0.3em] border border-white/30 bg-white/10 px-4 py-2 rounded-full mb-4">
+              {why_kds?.title || "Why KDS International"}
             </span>
-            <h2 className="text-4xl md:text-5xl font-black text-white dark:text-white leading-tight mb-4 transition-colors duration-500" style={{ fontFamily: "Outfit, sans-serif" }}>
-              The KDS Advantage
-            </h2>
-            <p className="text-white dark:text-gray-400 max-w-2xl mx-auto leading-relaxed transition-colors duration-500">
-              Hundreds of businesses across Delhi NCR trust KDS International for reliable, compliant, and performance-based manpower solutions.
-            </p>
+
+
+            <h2
+              className="text-4xl md:text-5xl font-black text-white leading-tight mb-4"
+              style={{ fontFamily: "Outfit, sans-serif" }}
+              dangerouslySetInnerHTML={{
+                __html: why_kds?.subtitle || "The KDS Advantage"
+              }}
+            />
+
+
+            <div
+              className="text-white max-w-2xl mx-auto leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: why_kds?.description || ""
+              }}
+            />
+
           </div>
 
+
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {data.whyChooseUs.map((item, i) => {
-              const icons = [Clock, Users, Shield, Award, Briefcase, Award];
+
+
+            {why_kds?.extra?.map((item, i) => {
+
+              const icons = [
+                Clock,
+                Users,
+                Shield,
+                Award
+              ];
+
               const Icon = icons[i % icons.length];
+
+
               const gradients = [
                 "from-[#0d47a1] to-[#1565c0]",
                 "from-[#1565c0] to-[#1976d2]",
                 "from-[#1976d2] to-[#1e88e5]",
                 "from-[#0d47a1] to-[#1976d2]",
-                "from-[#1565c0] to-[#0d47a1]",
-                "from-[#1e88e5] to-[#1565c0]",
               ];
+
+
               return (
-                <div key={i} data-aos="fade-up" data-aos-delay={i * 100}
-                  className="bg-gray-50 dark:bg-[#0a1628] rounded-2xl p-4 border border-gray-200 dark:border-[#1565c0]/10 hover:border-[#1565c0]/30 dark:hover:border-[#1565c0]/30 transition-all duration-300 group hover:shadow-lg hover:shadow-[#1565c0]/5 hover:-translate-y-0.5">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradients[i]} flex items-center justify-center mb-5 shadow-md group-hover:scale-110 transition-transform`}>
-                    <Icon size={22} className="text-white" />
+
+                <div
+                  key={i}
+                  data-aos="fade-up"
+                  data-aos-delay={i * 100}
+                  className="
+            bg-white backdrop-blur-md
+            rounded-2xl p-3
+            border border-white/20
+            hover:-translate-y-1
+            transition-all duration-300
+            "
+                >
+
+                  <div
+                    className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradients[i]}
+              flex items-center justify-center mb-4`}
+                  >
+
+                    <Icon
+                      size={22}
+                      className="text-white"
+                    />
+
                   </div>
-                  <h3 className="font-black text-gray-900 dark:text-white text-base mb-2 group-hover:text-[#1565c0] dark:group-hover:text-[#90caf9] transition-colors">{item.title}</h3>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed transition-colors duration-300">{item.desc}</p>
+
+
+                  <h3 className="font-black text-black text-xl mb-3">
+                    {item.key}
+                  </h3>
+
+
+                  <p className="text-gray-600 text-sm ">
+                    {item.value}
+                  </p>
+
+
                 </div>
-              );
+
+              )
+
             })}
+
+
           </div>
+
         </div>
       </section>
 
@@ -579,36 +582,50 @@ export default async function HomePage() {
           PROCESS — HOW WE WORK
       ══════════════════════════════════════════════ */}
       <section className="bg-gray-50 dark:bg-[#0a1628] py-5 md:py-28 transition-colors duration-500">
-        <div className="container mx-auto px-6 max-w-7xl">
-          <div className="text-center mb-16">
-            <span className="inline-block text-[11px] font-black text-[#1565c0] dark:text-[#90caf9] uppercase tracking-[0.3em] border border-[#1565c0]/30 bg-[#1565c0]/5 px-4 py-2 rounded-full mb-4">
-              Our Process
-            </span>
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white leading-tight mb-4 transition-colors duration-500" style={{ fontFamily: "Outfit, sans-serif" }}>
-              How We Deliver
-            </h2>
-            <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed transition-colors duration-500">
-              A simple, proven process that gets your workforce in place fast — with full legal compliance and zero headaches.
-            </p>
-          </div>
+        <div className="container mx-auto px-6 max-w-7xl flex flex-col justify-center items-center">
+          <span className="inline-block text-[11px] font-black text-[#1565c0] dark:text-[#90caf9] uppercase tracking-[0.3em] border border-[#1565c0]/30 bg-[#1565c0]/5 px-4 py-2 rounded-full mb-4">
+            {our_process?.title}
+          </span>
+
+
+          <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white leading-tight mb-4 transition-colors duration-500"
+            style={{ fontFamily: "Outfit, sans-serif" }}>
+            {our_process?.subtitle}
+          </h2>
+
+
+          <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto text-center leading-relaxed transition-colors duration-500">
+            {our_process?.description?.replace(/<[^>]+>/g, '')}
+          </p>
 
           <div className="relative">
             {/* Connector */}
             <div className="hidden md:block absolute top-10 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-[#1565c0]/40 to-transparent" />
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative z-10">
-              {[
-                { num: "01", title: "Share Requirements", desc: "Tell us your manpower needs — skill type, quantity, duration, and location." },
-                { num: "02", title: "Worker Matching", desc: "We shortlist workers from our database within hours, background-verified and ready." },
-                { num: "03", title: "Rapid Deployment", desc: "Workers are mobilised and deployed within 24-48 hours to your site." },
-                { num: "04", title: "Ongoing Support", desc: "We handle all payroll, compliance, replacement, and performance monitoring." },
-              ].map((step, i) => (
-                <div key={i} data-aos="fade-up" data-aos-delay={i * 300} className="flex flex-col items-center text-center group">
+              {our_process?.extra?.map((step, i) => (
+                <div
+                  key={i}
+                  data-aos="fade-up"
+                  data-aos-delay={i * 300}
+                  className="flex flex-col items-center text-center group"
+                >
                   <div className="w-20 h-20 rounded-full bg-white dark:bg-[#0d1a2d] border-2 border-[#1565c0] flex items-center justify-center mb-6 shadow-xl shadow-[#1565c0]/10 group-hover:bg-gradient-to-br group-hover:from-[#0d47a1] group-hover:to-[#1565c0] transition-all duration-300">
-                    <span className="text-xl font-black text-[#1565c0] dark:text-[#90caf9] group-hover:text-white transition-colors">{step.num}</span>
+
+                    <span className="text-xl font-black text-[#1565c0] dark:text-[#90caf9] group-hover:text-white transition-colors">
+                      {step.key}
+                    </span>
+
                   </div>
-                  <h4 className="font-black text-gray-900 dark:text-white text-sm mb-2 mt-2 leading-tight transition-colors duration-500">{step.title}</h4>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed transition-colors duration-500">{step.desc}</p>
+
+                  <h4 className="font-black text-gray-900 dark:text-white text-sm mb-2 mt-2 leading-tight transition-colors duration-500">
+                    {step.value}
+                  </h4>
+
+                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed transition-colors duration-500">
+                    {step.subtitle}
+                  </p>
+
                 </div>
               ))}
             </div>
@@ -633,12 +650,12 @@ export default async function HomePage() {
             {data.testimonials.map((t, i) => (
               <div key={t.id}
                 className="bg-gray-50 dark:bg-[#0a1628] rounded-2xl p-4 border border-gray-200 dark:border-[#1565c0]/10 hover:border-[#1565c0]/30 transition-all duration-300 hover:shadow-lg hover:shadow-[#1565c0]/5 relative group">
-               
+
                 <div className="absolute top-6 right-6 text-[#1565c0]/10 dark:text-[#1565c0]/20">
                   <Quote size={40} />
                 </div>
 
-               
+
                 <div className="flex gap-0.5 mb-5">
                   {Array.from({ length: t.rating }).map((_, si) => (
                     <Star key={si} size={14} className="text-yellow-400 fill-yellow-400" />
@@ -662,12 +679,9 @@ export default async function HomePage() {
             ))}
           </div>
         </div>
-      </section>  */}
+      </section> */}
 
-
-
-      <Testimonial data={data} />
-
+      <Testimonial data={testimonial} />
 
       {/* ══════════════════════════════════════════════
           BLOG / NEWS
@@ -676,12 +690,19 @@ export default async function HomePage() {
         <div className="container mx-auto px-6 max-w-7xl">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-4">
             <div className="space-y-3">
-              <span className="inline-block text-[11px] font-black text-[#1565c0] dark:text-[#90caf9] uppercase tracking-[0.3em] border border-[#1565c0]/30 bg-[#1565c0]/5 px-4 py-2 rounded-full">
-                Insights & News
-              </span>
-              <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white leading-tight transition-colors duration-500 mt-2" style={{ fontFamily: "Outfit, sans-serif" }}>
-                Latest Articles
-              </h2>
+              <span
+                className="inline-block text-[11px] font-black text-[#1565c0] dark:text-[#90caf9] uppercase tracking-[0.3em] border border-[#1565c0]/30 bg-[#1565c0]/5 px-4 py-2 rounded-full"
+                dangerouslySetInnerHTML={{
+                  __html: blogs?.title || "jhafigefuyhewfuh",
+                }}
+              />
+              <h2
+                className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white leading-tight transition-colors duration-500 mt-2"
+                style={{ fontFamily: "Outfit, sans-serif" }}
+                dangerouslySetInnerHTML={{
+                  __html: blogs?.subtitle || "jhbfgbhg",
+                }}
+              />
             </div>
             <Link href="/blog" className="shrink-0 inline-flex items-center gap-2 text-[#1565c0] dark:text-[#90caf9] font-bold text-sm hover:gap-3 transition-all group">
               View All Articles <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
@@ -689,26 +710,34 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {data.blogPosts.slice(0, 3).map((post, i) => (
-              <Link key={post.id} href={`/blog/${post.slug}`} data-aos="fade-up" data-aos-delay={i * 200}
+            {blogs.extra.slice(0, 3).map((post, i) => (
+              <Link key={post.key} href={`/blog/${post.url_path}`} data-aos="fade-up" data-aos-delay={i * 200}
                 className="group bg-white dark:bg-[#0d1a2d] rounded-2xl overflow-hidden border border-gray-200 dark:border-[#1565c0]/10 hover:border-[#1565c0]/40 dark:hover:border-[#1565c0]/30 transition-all duration-300 hover:shadow-xl hover:shadow-[#1565c0]/5 hover:-translate-y-1 block">
                 {/* Image */}
                 <div className="h-64 overflow-hidden relative">
                   <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                    style={{ backgroundImage: `url(${post.image})` }} />
+                    style={{ backgroundImage: `url(${IMAGE_URL}/${post.image})` }} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                  <div className="absolute top-4 left-4 bg-[#1565c0] text-white text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-full">
-                    {post.category}
-                  </div>
+                  <div className="absolute top-4 left-4 bg-[#1565c0] text-white text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-full"
+                    dangerouslySetInnerHTML={{
+                      __html: post?.subtitle || "jhbfgbhg",
+                    }}
+                  />
                 </div>
 
                 {/* Content */}
                 <div className="p-4">
-                  <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold mb-2 transition-colors duration-300">{post.date}</p>
-                  <h3 className="text-base font-black text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-[#1565c0] dark:group-hover:text-[#90caf9] transition-colors duration-300 leading-snug">
-                    {post.title}
-                  </h3>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed mb-4 line-clamp-2 transition-colors duration-300">{post.excerpt}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold mb-2 transition-colors duration-300" dangerouslySetInnerHTML={{
+                    __html: post?.title || "jhbfgbhg",
+                  }} />
+                  <h3 className="text-base font-black text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-[#1565c0] dark:group-hover:text-[#90caf9] transition-colors duration-300 leading-snug"
+                    dangerouslySetInnerHTML={{
+                      __html: post?.description || "jhbfgbhg",
+                    }}
+                  />
+                  <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed mb-4 line-clamp-2 transition-colors duration-300" dangerouslySetInnerHTML={{
+                    __html: post?.subtitle || "jhbfgbhg",
+                  }} />
                   <div className="flex items-center gap-1.5 text-[#1565c0] dark:text-[#90caf9] text-xs font-black uppercase tracking-widest">
                     Read Article <ChevronRight size={13} className="group-hover:translate-x-1 transition-transform" />
                   </div>
@@ -719,6 +748,8 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* frequently asked questions */}
+      <FAQSection faqs={FAQData} />
       {/* ══════════════════════════════════════════════
           CTA BANNER
       ══════════════════════════════════════════════ */}

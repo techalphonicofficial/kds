@@ -4,8 +4,9 @@
 import React, { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
 import { Upload, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { API_ENDPOINTS } from '@/config/api';
 
-const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
+const CareerApplicationForm = ({ job, initialPosition = '', onSuccess }) => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -14,14 +15,16 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
     experience: '',
     message: '',
   });
-  
+
   const [resumeFile, setResumeFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState('idle');
+  const [errorMsg, setErrorMsg] = useState('');
 
   // Update form when initialPosition changes
   useEffect(() => {
     if (initialPosition) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData(prev => ({ ...prev, position: initialPosition }));
     }
   }, [initialPosition]);
@@ -40,18 +43,62 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate API call
+    setErrorMsg('');
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setSubmitStatus('success');
-      
-      // Call onSuccess callback if provided
-      if (onSuccess) {
-        onSuccess();
+      const form = new FormData();
+
+      // Required backend fields
+      form.append('job_id', job?.id || job?.sno || '');
+      form.append('full_name', formData.fullName);
+      form.append('email', formData.email);
+      form.append('phone_number', formData.phone);
+      form.append(
+        'position_applying_for',
+        formData.position
+      );
+      form.append(
+        'years_of_experience',
+        formData.experience
+      );
+
+      // Optional fields
+      form.append(
+        'cover_letter',
+        formData.message || ''
+      );
+
+      if (resumeFile) {
+        form.append('resume', resumeFile);
       }
-      
-      // Reset form after success
+
+      const res = await fetch(API_ENDPOINTS.JOB_APPLY, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json'
+        },
+        body: form,
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        console.log(result);
+        let errMsg = 'Submission failed';
+        if (result && result.message) {
+          if (typeof result.message === 'string') {
+            errMsg = result.message;
+          } else if (typeof result.message === 'object') {
+            errMsg = Object.values(result.message).flat().join(' ');
+          }
+        }
+        throw new Error(errMsg);
+      }
+
+      setSubmitStatus('success');
+
+      if (onSuccess) onSuccess();
+
       setFormData({
         fullName: '',
         email: '',
@@ -60,18 +107,25 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
         experience: '',
         message: '',
       });
+
       setResumeFile(null);
-      
-      // Reset file input
+
       const fileInput = document.getElementById('resume');
-      if (fileInput) fileInput.value = '';
-      
+      if (fileInput) {
+        fileInput.value = '';
+      }
+
     } catch (error) {
+      console.error(error);
+      setErrorMsg(error.message || 'Something went wrong. Please try again.');
       setSubmitStatus('error');
+
     } finally {
       setIsSubmitting(false);
-      // Reset status after 5 seconds
-      setTimeout(() => setSubmitStatus('idle'), 5000);
+
+      setTimeout(() => {
+        setSubmitStatus('idle');
+      }, 5000);
     }
   };
 
@@ -82,7 +136,7 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
         <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 rounded-lg flex items-center gap-3 animate-fade-in">
           <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
           <p className="text-green-800 dark:text-green-300">
-            Application submitted successfully! We'll review your profile and get back to you soon.
+            Application submitted successfully! We&apos;ll review your profile and get back to you soon.
           </p>
         </div>
       )}
@@ -92,7 +146,7 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
         <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 rounded-lg flex items-center gap-3 animate-fade-in">
           <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
           <p className="text-red-800 dark:text-red-300">
-            Something went wrong. Please try again or contact us directly.
+            {errorMsg}
           </p>
         </div>
       )}
@@ -102,8 +156,8 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Full Name */}
           <div className='mb-3'>
-            <label 
-              htmlFor="fullName" 
+            <label
+              htmlFor="fullName"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
               Full Name <span className="text-red-500">*</span>
@@ -122,8 +176,8 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
 
           {/* Email */}
           <div className='mb-3'>
-            <label 
-              htmlFor="email" 
+            <label
+              htmlFor="email"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
               Email Address <span className="text-red-500">*</span>
@@ -145,8 +199,8 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Phone Number */}
           <div className='mb-3'>
-            <label 
-              htmlFor="phone" 
+            <label
+              htmlFor="phone"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
               Phone Number <span className="text-red-500">*</span>
@@ -165,8 +219,8 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
 
           {/* Position */}
           <div className='mb-3'>
-            <label 
-              htmlFor="position" 
+            <label
+              htmlFor="position"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
               Position Applying For <span className="text-red-500">*</span>
@@ -208,9 +262,9 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
         </div>
 
         {/* Experience */}
-        <div  className='mb-3'>
-          <label 
-            htmlFor="experience" 
+        <div className='mb-3'>
+          <label
+            htmlFor="experience"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
             Years of Experience <span className="text-red-500">*</span>
@@ -232,11 +286,11 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
         </div>
 
         {/* Resume Upload */}
-        <div  className='mb-3'>
+        <div className='mb-3'>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Resume/CV <span className="text-red-500">*</span>
           </label>
-          <div 
+          <div
             className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-3 text-center hover:border-[#1565c0] dark:hover:border-[#1565c0] transition-colors cursor-pointer group"
             onClick={() => document.getElementById('resume').click()}
           >
@@ -266,9 +320,9 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
         </div>
 
         {/* Cover Letter */}
-        <div  className='mb-3'>
-          <label 
-            htmlFor="message" 
+        <div className='mb-3'>
+          <label
+            htmlFor="message"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
             Cover Letter / Additional Information
@@ -289,9 +343,8 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
           type="submit"
           size="lg"
           disabled={isSubmitting}
-          className={`w-full bg-[#1565c0] text-white hover:bg-[#0d47a1] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all ${
-            isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
-          }`}
+          className={`w-full bg-[#1565c0] text-white hover:bg-[#0d47a1] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all ${isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
+            }`}
         >
           {isSubmitting ? (
             <>
@@ -320,7 +373,7 @@ const CareerApplicationForm = ({ initialPosition = '', onSuccess }) => {
             terms of service
           </a>.
           <br />
-          We'll handle your information with care.
+          We&apos;ll handle your information with care.
         </p>
       </form>
     </div>

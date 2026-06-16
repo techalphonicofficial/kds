@@ -1,4 +1,7 @@
 import { getServerData } from "@/lib/data";
+import { API_ENDPOINTS } from "@/config/api";
+import { getData } from "@/lib/data";
+import { IMAGE_URL } from "@/config/api";
 import {
   Mail,
   Phone,
@@ -9,49 +12,135 @@ import {
   Facebook,
 } from "lucide-react";
 import SectionTitle from "@/components/ui/SectionTitle";
-
+import { getPageSEO } from "@/lib/metadata";
 import ContactForm from "@/components/layout/ContactForm";
 
-export const metadata = {
-  title: "Contact Us",
-  description:
-    "Get in touch with KDS International for precision global solutions. Request a quote or expert consultation.",
-};
+export async function generateMetadata() {
+
+  const page = await getPageSEO("contact");
+
+  return {
+    title: page?.meta_title || "",
+
+    description:
+      page?.meta_description || "",
+
+    keywords:
+      page?.meta_keywords?.split(",") || [],
+
+    openGraph: {
+      title: page?.meta_title,
+      description: page?.meta_description,
+      images: [
+        {
+          url: `${IMAGE_URL}/${page.image}`,
+        }
+      ],
+    },
+
+    other: {
+      "script:type": JSON.stringify(page?.meta_schema || [])
+    }
+  };
+}
 
 export default async function ContactPage() {
+  const CONTACT = await getData(API_ENDPOINTS.CONTACT);
+  const page = await getPageSEO("contact");
+
+
+  const sections = CONTACT.data.sections.reduce(
+    (acc, section) => {
+      acc[section.section_key] = section;
+      return acc;
+    },
+    {}
+  );
+
+
+  const hero_section = sections.hero_section;
+  const contact_part = sections.contact_part;
   const data = await getServerData();
   const { siteInfo } = data;
 
   return (
     <main className="overflow-hidden bg-white dark:bg-[#0d1117] transition-colors duration-500">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            page?.meta_schema?.[0]?.schema || {}
+          )
+        }}
+      />
       {/* ─── HERO SECTION ──────────────────────────────────────────────── */}
       <section className="relative mt-5 pt-5 pb-5 hero-bg overflow-hidden text-center">
+
         <div className="absolute inset-0 hero-grid opacity-30" />
+
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#1565c0]/10 glow-blob rounded-full blur-[120px]" />
 
+
+
         <div className="container mx-auto mt-5 px-6 max-w-7xl relative z-10">
+
+
+          {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full premium-glass border-[#1565c0]/30 mb-8 animate-fade-in-up">
+
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1565c0]">
-              Global Support Network
+
+              {hero_section?.title}
+
             </span>
+
           </div>
+
+
+
+
+
+          {/* Heading */}
+
           <h1
             className="text-6xl md:text-8xl font-black !text-gray-100 dark:text-white mb-3 leading-[0.9] tracking-tighter animate-fade-in-up transition-colors duration-500"
             style={{ animationDelay: "0.1s" }}
           >
-            Strategic
-            {/* <br /> */}
-            <span className=" ms-3 gradient-text">Consultation.</span>
+
+            {hero_section?.subtitle?.split(" ")[0]}
+
+            <span className="ms-3 gradient-text">
+
+              {
+                hero_section?.subtitle
+                  ?.split(" ")
+                  ?.slice(1)
+                  ?.join(" ")
+              }
+
+            </span>
+
+
           </h1>
+
+
+
+
+
+          {/* Description */}
+
           <p
             className="text-gray-300 dark:text-[#8b949e] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed animate-fade-in-up transition-colors duration-500"
             style={{ animationDelay: "0.2s" }}
           >
-            Ready to optimize your supply chain? Our team of precision
-            specialists is available for global deployment and 24/7 strategic
-            support.
+
+            {hero_section?.description?.replace(/<[^>]*>/g, "")}
+
           </p>
+
+
         </div>
+
       </section>
 
       {/* ─── CONTACT SECTION ─────────────────────────────────────────── */}
@@ -61,87 +150,142 @@ export default async function ContactPage() {
             {/* Info Column */}
             <div
               className=""
-               data-aos="fade-up" data-aos-delay={400}
+              data-aos="fade-up"
+              data-aos-delay={400}
             >
-              <SectionTitle
-                label="Connect"
-                title="Global Headquarters"
-                subtitle="Reach out to our core team for project inquiries, technical specifications, or strategic partnerships."
-              />
 
+              <SectionTitle
+                data={contact_part}
+              // title={contact_part?.subtitle}
+
+              />
               <div className="mt-3 space-y-2">
-                {[
-                  {
-                    icon: Mail,
-                    label: "Technical Inquiries",
-                    value: siteInfo.email,
-                    href: `mailto:${siteInfo.email}`,
-                  },
-                  {
-                    icon: Phone,
-                    label: "Direct Line",
-                    value: siteInfo.phone,
-                    href: `tel:${siteInfo.phone}`,
-                  },
-                  {
-                    icon: MapPin,
-                    label: "HQ Address",
-                    value: siteInfo.address,
-                    href: "#",
-                  },
-                  {
-                    icon: Clock,
-                    label: "Response Time",
-                    value: "Mon - Fri: 9:00 AM - 6:00 PM (GMT+5)",
-                    href: "#",
-                  },
-                ].map((item, idx) => (
-                  <div key={idx} className="flex gap-3 mb-4 group">
-                    <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-[#161b22] border border-gray-200 dark:border-white/5 flex items-center justify-center shrink-0 group-hover:bg-[#1565c0] group-hover:text-white transition-all duration-500 shadow-xl">
-                      <item.icon
-                        size={28}
-                        className="text-[#1565c0] group-hover:text-white transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e] mb-2 transition-colors duration-500">
-                        {item.label}
-                      </p>
-                      <a
-                        href={item.href}
-                        className="text-xl font-bold text-gray-900 dark:text-white hover:text-[#1565c0] transition-colors duration-500"
-                        style={{ fontFamily: "Outfit, sans-serif" }}
+
+
+                {
+                  contact_part?.extra?.map((item, idx) => {
+
+                    const Icon =
+                      item.key === "Technical Inquiries"
+                        ? Mail
+                        : item.key === "Direct Line"
+                          ? Phone
+                          : item.key === "HQ Address"
+                            ? MapPin
+                            : Clock;
+
+
+                    const href =
+                      item.key === "Technical Inquiries"
+                        ? `mailto:${item.value}`
+                        : item.key === "Direct Line"
+                          ? `tel:${item.value}`
+                          : "#";
+
+
+                    return (
+
+                      <div
+                        key={idx}
+                        className="flex gap-3 mb-4 group"
                       >
-                        {item.value}
-                      </a>
-                    </div>
-                  </div>
-                ))}
+
+
+                        <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-[#161b22] border border-gray-200 dark:border-white/5 flex items-center justify-center shrink-0 group-hover:bg-[#1565c0] transition-all duration-500 shadow-xl">
+
+
+                          <Icon
+                            size={28}
+                            className="text-[#1565c0] group-hover:text-white transition-colors"
+                          />
+
+
+                        </div>
+
+
+
+
+
+                        <div>
+
+
+                          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e] mb-2">
+
+                            {item.key}
+
+                          </p>
+
+
+
+                          <a
+                            href={href}
+                            className="text-xl font-bold text-gray-900 dark:text-white hover:text-[#1565c0] transition-colors"
+                            style={{ fontFamily: "Outfit, sans-serif" }}
+                          >
+
+                            {item.value}
+
+                          </a>
+
+
+                        </div>
+
+
+                      </div>
+
+                    )
+
+                  })
+                }
+
+
               </div>
 
+
+
+
+
               {/* Social Ecosystem */}
-              <div className="mt-3 pt-2 border-t border-gray-200 dark:border-white/5 transition-colors duration-500">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e] mb-3 transition-colors duration-500">
+              <div className="mt-3 pt-2 border-t border-gray-200 dark:border-white/5">
+
+
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e] mb-3">
+
                   Digital Ecosystem
+
                 </p>
+
+
                 <div className="flex gap-4">
+
+
                   {[
-                    { icon: Linkedin, href: siteInfo.socialLinks.linkedin },
-                    { icon: Twitter, href: siteInfo.socialLinks.twitter },
-                    { icon: Facebook, href: siteInfo.socialLinks.facebook },
+                    { icon: Linkedin, href: "#" },
+                    { icon: Twitter, href: "#" },
+                    { icon: Facebook, href: "#" },
                   ].map((social, i) => (
+
+
                     <a
                       key={i}
                       href={social.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-[#161b22] border border-gray-200 dark:border-white/5 flex items-center justify-center text-gray-600 dark:text-[#8b949e] hover:text-[#1565c0] hover:border-[#1565c0]/40 transition-all hover:scale-110 shadow-lg duration-500"
+                      className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-[#161b22] border border-gray-200 dark:border-white/5 flex items-center justify-center text-gray-600 dark:text-[#8b949e] hover:text-[#1565c0] transition-all hover:scale-110"
                     >
+
                       <social.icon size={22} />
+
                     </a>
+
+
                   ))}
+
+
                 </div>
+
+
               </div>
+
+
             </div>
 
             {/* Form Column */}

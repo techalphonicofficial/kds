@@ -3,8 +3,10 @@ import { useRouter } from 'next/navigation';
 import React from "react";
 import { solutionsData } from "@/lib/solutionsAndTechData";
 import { ArrowUpRight } from "lucide-react";
+import { IMAGE_URL } from  "@/config/api";
 
-const Solutions = () => {
+const Solutions = ({ data }) => {
+    
     const router = useRouter();
     return (
         <section className="relative overflow-hidden py-20">
@@ -15,24 +17,24 @@ const Solutions = () => {
                     className="mx-auto mb-12 max-w-3xl mt-2 text-center"
                     data-aos="fade-up"
                     data-aos-duration="1000"
-                >
+                >                   
+                    <span className="inline-block text-[11px] font-black text-[#1565c0] uppercase tracking-[0.3em] border border-[#1565c0]/30 bg-[#1565c0]/10 px-4 py-2 rounded-full mb-4"
+                        dangerouslySetInnerHTML={{
+                            __html: data?.title || "OUR SOLUTIONS",
+                        }}
+                    />
 
-                    {/* <span className="rounded-full border border-blue-200 bg-blue-50 px-5 py-2 !my-1.5 text-sm font-medium tracking-wide text-blue-700">
-            OUR SOLUTIONS
-          </span> */}
-                    <span className="inline-block text-[11px] font-black text-[#1565c0] uppercase tracking-[0.3em] border border-[#1565c0]/30 bg-[#1565c0]/10 px-4 py-2 rounded-full mb-4">
-                        Our Solutions
-                    </span>
+                    <h1 className="mt-6 text-3xl font-bold leading-tight !text-[#1565c0] md:text-5xl"
+                        dangerouslySetInnerHTML={{
+                            __html: data?.subtitle || "OUR SOLUTIONS",
+                        }}
+                    />
 
-                    <h1 className="mt-6 text-3xl font-bold leading-tight !text-[#1565c0] md:text-5xl">
-                        Smart Solutions For <br />
-                        Modern Businesses
-                    </h1>
-
-                    <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-slate-500 md:text-base">
-                        Powerful enterprise experiences designed with performance,
-                        scalability and modern user interaction.
-                    </p>
+                    <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-slate-500 md:text-base"
+                        dangerouslySetInnerHTML={{
+                            __html: data?.description || "OUR SOLUTIONS",
+                        }}
+                    />
 
                 </div>
 
@@ -44,14 +46,14 @@ const Solutions = () => {
 
                     <div className="space-y-12 mb-10">
 
-                        {solutionsData.map((item, index) => {
+                        {data.extra.map((item, index) => {
 
                             const isEven = index % 2 === 0;
 
                             return (
                                 <div
-                                    key={index}
-                                    className={`group relative flex flex-col items-center gap-8 lg:flex-row ${isEven ? "" : "lg:flex-row-reverse"
+                                    key={item.key}
+                                    className={`group relative flex flex-col items-center gap-8 lg:flex-row  ${isEven ? "" : "lg:flex-row-reverse"
                                         }`}
                                     data-aos={isEven ? "fade-right" : "fade-left"}
                                     data-aos-duration="1000"
@@ -59,9 +61,9 @@ const Solutions = () => {
                                 >
 
                                     {/* Content */}
-                                    <div className="w-full lg:w-1/2">
+                                    <div className="w-full lg:w-1/2 ">
 
-                                        <div className="relative overflow-hidden rounded-[28px] cursor-pointer border border-slate-200 bg-white/80 p-6 backdrop-blur-xl transition-all duration-700 ease-out hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_20px_60px_rgba(59,130,246,0.08)]">
+                                        <div className="relative overflow-hidden rounded-[28px] cursor-pointer border bg-white/80 border-slate-200  !p-5 backdrop-blur-xl transition-all duration-700 ease-out hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_20px_60px_rgba(59,130,246,0.08)]">
 
                                             {/* Glow */}
                                             <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
@@ -69,7 +71,7 @@ const Solutions = () => {
                                             </div>
 
                                             {/* Top */}
-                                            <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-4 ">
 
                                                 <div className="flex h-14 w-14  ml-2 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-lg font-bold text-white shadow-lg shadow-blue-100 transition-all duration-700 group-hover:rotate-6">
                                                     0{index + 1}
@@ -82,7 +84,7 @@ const Solutions = () => {
                                                     </p>
 
                                                     <h2 className="mt-1 text-2xl font-bold text-slate-900 transition duration-500 group-hover:text-blue-700">
-                                                        {item.category}
+                                                        {item.key}
                                                     </h2>
 
                                                 </div>
@@ -91,7 +93,7 @@ const Solutions = () => {
 
                                             {/* Description */}
                                             <p className="mt-5 ml-2 text-sm leading-7 text-slate-500">
-                                                {item.description}
+                                                {item.value}
                                             </p>
 
                                             {/* Bottom */}
@@ -131,8 +133,8 @@ const Solutions = () => {
                                         <div className="relative overflow-hidden rounded-[30px] border border-slate-200 bg-white p-2 shadow-sm transition-all duration-700 group-hover:shadow-xl">
 
                                             <img
-                                                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200&auto=format&fit=crop"
-                                                alt="solution"
+                                                src={`${IMAGE_URL}/${item.image}`}
+                                                alt={item.alt_text|| "Solution Image"}  
                                                 className="h-[280px] w-full rounded-[24px] object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                                             />
 

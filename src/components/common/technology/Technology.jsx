@@ -1,10 +1,11 @@
 'use client'
 import React from 'react'
-import { technologyData } from '@/lib/solutionsAndTechData';
+// import { technologyData } from '@/lib/solutionsAndTechData';
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useRouter } from 'next/navigation';
 import "swiper/css";
 import "swiper/css/autoplay";
+import { IMAGE_URL } from  "@/config/api";
 import {
   Cpu,
   Users,
@@ -14,40 +15,36 @@ import {
   BarChart3,
 } from "lucide-react";
 
-const iconMap = {
+const icons = [
   Cpu,
   Users,
   ClipboardCheck,
   FileWarning,
   MapPinned,
   BarChart3,
-};
+];
 
 import { Autoplay } from "swiper/modules";
 // import { Technology } from '@/components/common/technology/Technology';
 
-const Technology = () => {
+const Technology = ({ data }) => {
+  const carausalData = data?.carousel_json || [];
   const router = useRouter();
   return (
-    // <div data-aos="flip-right" className='bg-white'>
-    //   {technologyData.map((sol, i) => (
-    //     <div key={i}>
-    //       <h1>{sol.category}</h1>
-
-    //     </div>
-    //   ))}
-    // </div>
+  
     <section className=" my-10 !py-15 bg-gradient-to-br bg-[radial-gradient(circle_at_center,_#3b82f6_0%,_#1d4ed8_40%,_#0f172a_100%)]">
       <div className='container'>
         {/* Heading */}
         <div className="text-center mb-12" data-aos="fade-up" data-aos-duration="900">
           <h1 className="text-3xl lg:text-5xl font-bold !text-white">
-            Technologies and Operations Management with us
+            {data.title}
           </h1>
 
-          <p className="text-white mt-4 text-sm lg:text-base max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">
-            Design & Build World-Class Professional Websites With Ease.
-          </p>
+          <p className="text-white mt-4 text-sm lg:text-base max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100"
+            dangerouslySetInnerHTML={{
+              __html: data.description || "",
+            }}
+          />
         </div>
 
         <div className='flex w-full h-full' data-aos="fade-up" data-aos-duration="1000" data-aos-delay="150">
@@ -62,29 +59,17 @@ const Technology = () => {
               className="h-full"
             >
 
-              <SwiperSlide>
-                <img
-                  src="https://images.unsplash.com/photo-1497366754035-f200968a6e72"
-                  className="w-full h-full object-cover transition duration-700 ease-in-out"
-                  alt=""
-                />
-              </SwiperSlide>
+              {carausalData?.map((slide, index) => (
+                <SwiperSlide key={slide.key} className="h-full">
 
-              <SwiperSlide>
-                <img
-                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
-                  className="w-full h-full object-cover transition duration-700 ease-in-out"
-                  alt=""
-                />
-              </SwiperSlide>
+                  <img
+                    src={`${IMAGE_URL}/${slide.image}`}
+                    className="w-full h-full object-cover transition duration-700 ease-in-out"
+                    alt={slide.alt_text || "technology banner"}
+                  />
 
-              <SwiperSlide>
-                <img
-                  src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3"
-                  className="w-full h-full object-cover transition duration-700 ease-in-out"
-                  alt=""
-                />
-              </SwiperSlide>
+                </SwiperSlide>
+              ))}
 
             </Swiper>
           </div>
@@ -92,16 +77,16 @@ const Technology = () => {
 
             <div className="grid grid-cols-3 h-full gap-3 ml-4 ">
 
-              {technologyData.map((tech, index) => {
-                const Icon = iconMap[tech.iconName];
+              {data.extra.map((tech, index) => {
+                 const Icon = icons[index % icons.length];
 
                 return (
                   <div
-                    key={index}
+                    key={tech.key}
                     data-aos="zoom-in"
                     data-aos-duration="700"
                     data-aos-delay={`${120 + index * 80}`}
-                    onClick={()=>router.push('technology-and-operations')}
+                    onClick={() => router.push('technology-and-operations')}
                     className="border border-gray-100 flex flex-col items-center justify-center text-center bg-white hover:bg-gray-50 transition duration-500 ease-out transform rounded-2xl hover:-translate-y-1 hover:shadow-lg cursor-pointer"
                   >
                     {/* Circle Icon */}
@@ -109,14 +94,17 @@ const Technology = () => {
                       <Icon size={34} className="text-white" />
                     </div>
                     {/* Title */}
-                    <p className="!text-[14px] text-gray-800">
-                      {tech.category}
-                    </p>
-                    {tech.description && (
-                      <p className="text-xs text-slate-500 leading-relaxed hidden sm:block">
-                        {tech.description}
-                      </p>
-                    )}
+                    <p className="!text-[14px] text-gray-800"
+                      dangerouslySetInnerHTML={{
+                        __html: tech.key || "",
+                      }}
+                    />
+                    <p className="text-xs text-slate-500 leading-relaxed hidden sm:block p-1"
+                      dangerouslySetInnerHTML={{
+                        __html: tech.value.substring(0, 80) || "",
+                      }} />
+
+
                   </div>
                 );
               })}
