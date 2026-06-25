@@ -17,6 +17,8 @@ import Button from "@/components/ui/Button";
 import BlogCard from "@/components/ui/BlogCard";
 import BlogSection from "@/components/ui/BlogSection";
 import Keyfeature from "@/components/common/keyfeature/Keyfeature";
+// import Benefits from "@/components/common/benefit/Benefitsenefits";
+import Benefits from './../../../components/common/benefit/Benefits';
 
 export async function generateMetadata({ params }) {
   try {
@@ -58,7 +60,7 @@ export default async function SolutionDetailPage({ params }) {
       },
       {}
     );
-    
+
     const hero_section = sections.hero_section;
     const overview = sections.overview;
     const para = sections.para;
@@ -90,7 +92,7 @@ export default async function SolutionDetailPage({ params }) {
       { id: "content", label: "Detailed Info" },
     ];
 
-  
+
 
     return (
       <main className="scroll-smooth overflow-x-clip bg-white dark:bg-[#0d1117] transition-colors duration-500">
@@ -219,26 +221,23 @@ export default async function SolutionDetailPage({ params }) {
               >
                 {/* Description */}
                 {para && (
-                  <div id="overview" className="scroll-mt-28 bg-white dark:bg-transparent premium-glass p-6 md:p-8 rounded-[2rem] border border-gray-200 dark:border-white/5 relative overflow-hidden transition-colors duration-500">
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center p-4">
-                      <div className={para.image ? "md:col-span-8" : "md:col-span-12"}>
+                  <div
+                    id="overview"
+                    className="scroll-mt-28 bg-white dark:bg-transparent premium-glass p-6 md:p-8 rounded-[2rem] border border-gray-200 dark:border-white/5 relative overflow-hidden transition-colors duration-500"
+                  >
+                    <div className="grid grid-cols-1 gap-8 items-center p-4">
+
+                      <div className="md:col-span-12">
                         <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
                           {para.title}
                         </h2>
+
                         <div
                           className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed transition-colors duration-500"
                           dangerouslySetInnerHTML={{ __html: para.description }}
                         />
                       </div>
-                      {para.image && (
-                        <div className="md:col-span-4 h-48 md:h-64 rounded-2xl overflow-hidden shadow-lg relative">
-                          <img
-                            src={`${IMAGE_URL}/${para.image}`}
-                            alt={para.alt_text || "Overview Image"}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
+
                     </div>
                   </div>
                 )}
@@ -271,9 +270,9 @@ export default async function SolutionDetailPage({ params }) {
                     </div>
                   </div>
                 ))} */}
-                <Keyfeature data={para}/>
+                <Keyfeature data={para} />
                 {/* Benefits */}
-                {benefits && (
+                {/* {benefits && (
                   <div id="benefits" className="scroll-mt-28 my-4">
                     <h3
                       className="text-2xl mb-4 font-black text-gray-900 dark:text-white tracking-tight transition-colors duration-500"
@@ -294,7 +293,9 @@ export default async function SolutionDetailPage({ params }) {
                       ))}
                     </div>
                   </div>
-                )}
+                )} */}
+                <Benefits data={benefits} />
+                
 
                 {benefits?.extra_data && benefits.extra_data.length > 0 && (
                   <div className="flex flex-col gap-2 my-8">
