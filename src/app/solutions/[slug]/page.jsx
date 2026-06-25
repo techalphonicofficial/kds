@@ -349,9 +349,7 @@ export default async function SolutionDetailPage({ params }) {
                         {whyChoose.subtitle}
                       </p>
                     )}
-                    <h3>
-                      Our CMMS Implementation Approach
-                    </h3>
+                   
                     {whyChoose.extra_data?.[0]?.points && (
                       <div className="mt-6">
                         {whyChoose.extra_data.map((item, index) => (
