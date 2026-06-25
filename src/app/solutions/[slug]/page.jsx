@@ -295,7 +295,7 @@ export default async function SolutionDetailPage({ params }) {
                   </div>
                 )} */}
                 <Benefits data={benefits} />
-                
+
 
                 {benefits?.extra_data && benefits.extra_data.length > 0 && (
                   <div className="flex flex-col gap-2 my-8">
@@ -335,6 +335,7 @@ export default async function SolutionDetailPage({ params }) {
                 )}
 
                 {/* Detailed Info */}
+
                 {whyChoose && (
                   <div id="content" className="scroll-mt-28 my-8">
                     <h3
@@ -348,29 +349,54 @@ export default async function SolutionDetailPage({ params }) {
                         {whyChoose.subtitle}
                       </p>
                     )}
+                    <h3>
+                      Our CMMS Implementation Approach
+                    </h3>
                     {whyChoose.extra_data?.[0]?.points && (
-                      <div className="bg-[#1565c0]/5 !p-6 rounded-2xl border border-[#1565c0]/10 mt-6">
-                        <h4 className="font-black text-gray-900 dark:text-white mb-4">
-                          {whyChoose.extra_data[0].key || "Core Advantages"}
-                        </h4>
-                        <ul className="space-y-3 ps-1">
-                          {whyChoose.extra_data[0].points.map((p, idx) => (
-                            <li key={idx} className="flex items-start gap-3">
-                              <CheckCircle size={18} className="text-[#1565c0] shrink-0 mt-0.5" />
-                              <span className="text-gray-700 dark:text-gray-300 text-sm">
-                                {p.point}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
+                      <div className="mt-6">
+                        {whyChoose.extra_data.map((item, index) => (
+                          <div
+                            key={index}
+                            className="bg-[#1565c0]/5 p-4 rounded-4 border border-[#1565c0]/10 mb-4"
+                          >
+                            <div className="d-flex align-items-start gap-3">
+                              <div
+                                className="bg-[#1565c0] text-white fw-bold rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                style={{ width: 42, height: 42 }}
+                              >
+                                {index + 1}
+                              </div>
+
+                              <div>
+                                <h5 className="fw-bold text-dark mb-3">
+                                  {item.key}
+                                </h5>
+
+                                {item.points?.map((p, idx) => (
+                                  <p
+                                    key={idx}
+                                    className="text-secondary mb-2"
+                                  >
+                                    {p.point}
+                                  </p>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
+
+                    {/* {console.log(whyChoose.description)} */}
                     {whyChoose.description && (
                       <div
-                        className="prose dark:prose-invert text-gray-600 dark:text-[#8b949e] mt-6"
+                        className="why-choose-content text-gray-600 dark:text-[#8b949e] mt-6"
                         dangerouslySetInnerHTML={{ __html: whyChoose.description }}
+                        
                       />
                     )}
+
+                    
                   </div>
                 )}
 

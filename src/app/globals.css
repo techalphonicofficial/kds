@@ -409,3 +409,14 @@ button {
 .text-increase{
   font-size: 3rem;
 }
+
+.why-choose-content ul {
+  list-style: disc !important;
+  list-style-position: outside !important;
+  padding-left: 30px !important;
+}
+
+.why-choose-content li {
+  display: list-item !important;
+}
+
