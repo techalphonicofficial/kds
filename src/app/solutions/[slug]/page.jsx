@@ -69,6 +69,7 @@ export default async function SolutionDetailPage({ params }) {
     const custom = sections.custom;
     const expertise_part = sections.expertise_part;
     const Latest_insight = sections.Latest_insight;
+    const comprehensive = sections.Comprehensive;
 
     const title = response?.data?.title ? formatSlugToTitle(response.data.title) : formatSlugToTitle(slug);
 
@@ -385,11 +386,65 @@ export default async function SolutionDetailPage({ params }) {
                       </div>
                     )} 
 
-                    {/* {console.log(whyChoose.description)} */}
-                    {whyChoose.description && (
+                   
+
+                    
+                  </div>
+                )}
+                {comprehensive && (
+                  <div id="content" className="scroll-mt-28 my-8">
+                    <h3
+                      className="text-2xl mb-4 font-black text-gray-900 dark:text-white tracking-tight transition-colors duration-500"
+                      style={{ fontFamily: "Outfit, sans-serif" }}
+                    >
+                      {comprehensive.title}
+                    </h3>
+                   
+                   {whyChoose.subtitle && (
+                      <p className="text-gray-600 dark:text-[#8b949e] text-sm mb-4 leading-relaxed">
+                        {whyChoose.subtitle}
+                      </p>
+                    )}
+                    {comprehensive.extra_data?.[0]?.points && (
+                      <div className="mt-6">
+                        {comprehensive.extra_data.map((item, index) => (
+                          <div
+                            key={index}
+                            className="bg-[#1565c0]/5 p-4 rounded-4 border border-[#1565c0]/10 mb-4"
+                          >
+                            <div className="d-flex align-items-start gap-3">
+                              <div
+                                className="bg-[#1565c0] text-white fw-bold rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                style={{ width: 42, height: 42 }}
+                              >
+                                {index + 1}
+                              </div>
+
+                              <div>
+                                <h5 className="fw-bold text-dark mb-3">
+                                  {item.key}
+                                </h5>
+
+                                {item.points?.map((p, idx) => (
+                                  <p
+                                    key={idx}
+                                    className="text-secondary mb-2"
+                                  >
+                                    {p.point}
+                                  </p>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )} 
+
+                   
+                    {comprehensive.description && (
                       <div
                         className="why-choose-content text-gray-600 dark:text-[#8b949e] mt-6"
-                        dangerouslySetInnerHTML={{ __html: whyChoose.description }}
+                        dangerouslySetInnerHTML={{ __html: comprehensive.description }}
                         
                       />
                     )}
