@@ -383,7 +383,7 @@ export default async function SolutionDetailPage({ params }) {
                           </div>
                         ))}
                       </div>
-                    )}
+                    )} 
 
                     {/* {console.log(whyChoose.description)} */}
                     {whyChoose.description && (
