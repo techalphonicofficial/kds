@@ -146,66 +146,55 @@ export async function generateMetadata() {
 
 export default async function BlogListingPage({ searchParams }) {
   const resolvedSearchParams = await searchParams;
-  const response = await getData(API_ENDPOINTS.BLOGS);
+  const page = Number(resolvedSearchParams?.page) || 1;
+  const categoryFilter = resolvedSearchParams?.category;
+
+  // Fetch page layout/SEO design from old layout endpoint
+  const pageResponse = await getData(API_ENDPOINTS.BLOGS);
   const pages = await getPageSEO("blog");
 
-  const sections = response.data.sections.reduce(
+  const sections = pageResponse?.data?.sections?.reduce(
     (acc, section) => {
       acc[section.section_key] = section;
       return acc;
     },
     {}
-  );
+  ) || {};
 
   const hero = sections.hero_section;
 
-  // Map sections that have section_key === "blog_card" to dynamic blog list
-  const apiBlogs = (response.data.sections || [])
-    .filter(section => section.section_key === "blog_card")
-    .map(card => {
-      const author = card.description ? card.description.replace(/<[^>]*>/g, "") : "KDS Team";
+  // Fetch live blogs from new API
+  let blogsRes;
+  try {
+    blogsRes = await getData(`${API_ENDPOINTS.BLOGS_LIST}?page=${page}`);
+  } catch (error) {
+    console.error("Error fetching live blogs:", error);
+    blogsRes = { status: false, data: { data: [] }, categories: [] };
+  }
 
-      let slug = card.id;
-      if (card.extra && card.extra[0] && card.extra[0].url_path) {
-        const urlStr = card.extra[0].url_path;
-        const parts = urlStr.split("/");
-        slug = parts[parts.length - 1] || card.id;
-      }
+  const rawBlogs = blogsRes?.data?.data || [];
+  const categoriesList = blogsRes?.categories || [];
 
-      const excerpt = card.points && card.points[0] ? card.points[0].point.replace(/[“”"']/g, "") : "";
+  const apiBlogs = rawBlogs.map(post => {
+    return {
+      id: post.id,
+      slug: post.slug,
+      title: post.title,
+      date: post.created_at,
+      author: post.author?.name || "KDS Team",
+      image: post.featured_image,
+      category: post.category?.name || "General",
+      categorySlug: post.category?.slug || "general",
+      excerpt: post.excerpt || post.details?.[0]?.content?.replace(/<[^>]*>/g, "").substring(0, 150) || ""
+    };
+  });
 
-      return {
-        id: card.id,
-        slug: slug,
-        title: card.title || "Industry Insights",
-        date: card.subtitle || "2025-12-12",
-        author: author,
-        image: card.image,
-        category: card.alt_text || "Insights",
-        excerpt: excerpt
-      };
-    });
-
-  // Filter by category parameter if present
-  const categoryFilter = resolvedSearchParams?.category;
   const filteredBlogs = categoryFilter
-    ? apiBlogs.filter(post => post.category?.toLowerCase() === categoryFilter.toLowerCase())
+    ? apiBlogs.filter(post => post.categorySlug === categoryFilter || post.category?.toLowerCase() === categoryFilter.toLowerCase())
     : apiBlogs;
 
-  // Pagination logic using apiBlogs
-  const page = Number(resolvedSearchParams?.page) || 1;
-  const postsPerPage = 10;
-  const totalPages = Math.ceil(filteredBlogs.length / postsPerPage);
-  const startIndex = (page - 1) * postsPerPage;
-  const paginatedPosts = filteredBlogs.slice(startIndex, startIndex + postsPerPage);
-
-  const uniqueCategories = Array.from(new Set(apiBlogs.map(post => post.category)));
-
-  const data = await getServerData();
-  const { services } = data;
-
-  // Filter other services (excluding current if any)
-  const otherServices = services?.filter(s => s.id !== 'current-service-id') || [];
+  const paginatedPosts = filteredBlogs;
+  const totalPages = blogsRes?.data?.last_page || 1;
 
   return (
     <Suspense>
@@ -323,21 +312,24 @@ export default async function BlogListingPage({ searchParams }) {
               {/* Sidebar (1 column) */}
               <aside className="space-y-8 animate-fade-in-up lg:col-span-1">
                 {/* Related Services */}
-                {uniqueCategories.length > 0 && (
+                {categoriesList.length > 0 && (
                   <div className=" bg-white dark:bg-transparent premium-glass p-4 rounded-[2rem] border border-gray-200 dark:border-white/5">
                     <h3 className="text-gray-900 dark:text-white font-black text-sm  tracking-wider mb-2 flex items-center gap-2">
-                      {/* <Info size={16} className="text-[#1565c0]" /> */}
                       Categories
                     </h3>
                     <div className="my-3">
-                      {uniqueCategories.slice(0, 5).map((category, idx) => (
+                      {categoriesList.map((category, idx) => (
                         <Link
-                          key={idx}
-                          href={`/blog?category=${category}`}
-                          className="flex items-center justify-between group p-3 mb-3 rounded-xl border border-transparent hover:border-[#1565c0]/20 hover:bg-[#1565c0]/5 transition-all"
+                          key={category.id || idx}
+                          href={`/blog?category=${category.slug}`}
+                          className={`flex items-center justify-between group p-3 mb-3 rounded-xl border border-transparent transition-all ${
+                            categoryFilter === category.slug
+                              ? "border-[#1565c0]/30 bg-[#1565c0]/10 text-[#1565c0]"
+                              : "hover:border-[#1565c0]/20 hover:bg-[#1565c0]/5"
+                          }`}
                         >
                           <span className="text-gray-700 dark:text-gray-300 font-medium text-sm group-hover:text-gray-900 dark:group-hover:text-white">
-                            {category}
+                            {category.name}
                           </span>
                           <ArrowRight
                             size={16}

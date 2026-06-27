@@ -74,7 +74,7 @@ export default async function BlogPostPage({ params }) {
   if (!blog) notFound();
 
   try {
-    const allBlogsResponse = await getData(`${API_URL}/blogs`);
+    const allBlogsResponse = await getData(API_ENDPOINTS.BLOGS_LIST);
     const allBlogsList = allBlogsResponse?.data?.data || [];
     relatedPosts = allBlogsList
       .filter((p) => p.id !== blog.id)
@@ -101,6 +101,10 @@ export default async function BlogPostPage({ params }) {
   const featuredImage = blog.featured_image
     ? (blog.featured_image.startsWith("http") ? blog.featured_image : `${IMAGE_URL}/${blog.featured_image}`)
     : "";
+
+  const hasSpecialSections = blog.details?.some(
+    detail => detail.content && (detail.content.includes("Executive Summary") || detail.content.includes("Strategic Takeaways"))
+  ) || false;
 
   return (
     <main className="overflow-hidden bg-white dark:bg-[#0d1117] transition-colors duration-500">
@@ -209,78 +213,94 @@ export default async function BlogPostPage({ params }) {
                     </p>
                   )}
 
-                {blog.details
-  ?.filter(detail =>
-    detail.content.includes("Executive Summary")
-  )
-  .map(detail => (
-    <div key={detail.id}>
+                {hasSpecialSections ? (
+                  <>
+                    {blog.details
+                      ?.filter(detail =>
+                        detail.content.includes("Executive Summary")
+                      )
+                      .map(detail => (
+                        <div key={detail.id}>
+                          <div
+                            className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed mb-4 transition-colors duration-500"
+                            dangerouslySetInnerHTML={{
+                              __html: detail.content
+                            }}
+                          />
+                        </div>
+                      ))}
 
-      <div
-        className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed mb-4 transition-colors duration-500"
-        dangerouslySetInnerHTML={{
-          __html: detail.content
-        }}
-      />
+                    <div className="my-4 p-4 bg-white dark:bg-[#0d1117] border border-gray-200 dark:border-white/5 rounded-[2rem] shadow-sm dark:shadow-inner relative overflow-hidden group transition-colors duration-500">
+                      <div className="absolute inset-0 hero-grid opacity-10" />
+                      <h3 className="text-xl font-black text-gray-900 dark:text-white mb-8 tracking-widest uppercase relative z-10 transition-colors duration-500">
+                        Strategic Takeaways
+                      </h3>
+                      <ul className="space-y-6 relative z-10 ps-2">
+                        {(() => {
+                          const strategic = blog.details?.find(
+                            detail => detail.content.includes("Strategic Takeaways")
+                          )?.content;
 
-    </div>
-))}
+                          const parser = strategic
+                            ?.match(/<li>(.*?)<\/li>/g)
+                            ?.map(item =>
+                              item.replace(/<[^>]+>/g, "")
+                            );
 
-                  <div className="my-4 p-4 bg-white dark:bg-[#0d1117] border border-gray-200 dark:border-white/5 rounded-[2rem] shadow-sm dark:shadow-inner relative overflow-hidden group transition-colors duration-500">
-  <div className="absolute inset-0 hero-grid opacity-10" />
+                          return parser?.map((item, i) => (
+                            <li key={i} className="flex items-start gap-3">
+                              <div className="w-6 h-6 rounded-full bg-[#1565c0]/20 flex icon items-center justify-center shrink-0 mt-1">
+                                <div className="w-2 h-2 rounded-full bg-[#1565c0] shadow-[0_0_10px_#1565c0]" />
+                              </div>
+                              <p className="text-gray-700 dark:text-[#e6edf3] font-medium transition-colors duration-500">
+                                {item}
+                              </p>
+                            </li>
+                          ));
+                        })()}
+                      </ul>
+                    </div>
 
-  <h3 className="text-xl font-black text-gray-900 dark:text-white mb-8 tracking-widest uppercase relative z-10 transition-colors duration-500">
-    Strategic Takeaways
-  </h3>
-
-  <ul className="space-y-6 relative z-10 ps-2">
-
-    {(() => {
-      const strategic = blog.details?.find(
-        detail => detail.content.includes("Strategic Takeaways")
-      )?.content;
-
-      const parser = strategic
-        ?.match(/<li>(.*?)<\/li>/g)
-        ?.map(item =>
-          item.replace(/<[^>]+>/g, "")
-        );
-
-      return parser?.map((item, i) => (
-        <li key={i} className="flex items-start gap-3">
-
-          <div className="w-6 h-6 rounded-full bg-[#1565c0]/20 flex icon items-center justify-center shrink-0 mt-1">
-            <div className="w-2 h-2 rounded-full bg-[#1565c0] shadow-[0_0_10px_#1565c0]" />
-          </div>
-
-          <p className="text-gray-700 dark:text-[#e6edf3] font-medium transition-colors duration-500">
-            {item}
-          </p>
-
-        </li>
-      ));
-
-    })()}
-
-  </ul>
-</div>
-
-                  {blog.details
-                    ?.filter(detail =>
-                      detail.content.includes("Technological Integration")
-                    )
-                    .map(detail => (
-                      <div key={detail.id}>
-
-                        <div
-                          className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed mb-8 transition-colors duration-500"
-                          dangerouslySetInnerHTML={{
-                            __html: detail.content
-                          }}
-                        />
-
-                      </div>
-                    ))}
+                    {blog.details
+                      ?.filter(detail =>
+                        detail.content.includes("Technological Integration")
+                      )
+                      .map(detail => (
+                        <div key={detail.id}>
+                          <div
+                            className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed mb-8 transition-colors duration-500"
+                            dangerouslySetInnerHTML={{
+                              __html: detail.content
+                            }}
+                          />
+                        </div>
+                      ))}
+                  </>
+                ) : (
+                  blog.details?.map((detail, idx) => (
+                    <div key={detail.id} className="mb-8">
+                      {idx > 0 && detail.image && detail.image !== blog.featured_image && (
+                        <div className="mb-6 relative rounded-2xl overflow-hidden shadow-md">
+                          <img
+                            src={
+                              detail.image.startsWith("http")
+                                ? detail.image
+                                : `${IMAGE_URL}/${detail.image}`
+                            }
+                            alt={detail.alt_text || blog.title}
+                            className="w-full h-auto object-cover max-h-[450px]"
+                          />
+                        </div>
+                      )}
+                      <div
+                        className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed transition-colors duration-500"
+                        dangerouslySetInnerHTML={{
+                          __html: detail.content
+                        }}
+                      />
+                    </div>
+                  ))
+                )}
                 </div>
 
                 {/* Author Signature */}
