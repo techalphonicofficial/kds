@@ -291,6 +291,7 @@ export default function Header({ services, solutions = [], technologies = [], in
               link.hasMegaMenu ? (
                 <div
                   key={link.href}
+                  className="relative"
                   onMouseEnter={() => handleMouseEnter(link.label)}
                   onMouseLeave={handleMouseLeave}>
                   <button
@@ -316,10 +317,22 @@ export default function Header({ services, solutions = [], technologies = [], in
                   {(() => {
                     const menuInfo = getMenuData(link.label);
                     if (!menuInfo) return null;
+                    const colCount = Math.min(4, Math.max(1, menuInfo.data?.length || 1));
+                    const widthClass = 
+                      colCount === 1 ? "w-[320px]" :
+                      colCount === 2 ? "w-[600px]" :
+                      colCount === 3 ? "w-[880px]" :
+                      "w-[1140px]";
+                    const gridClass = 
+                      colCount === 1 ? "grid-cols-1" :
+                      colCount === 2 ? "grid-cols-2" :
+                      colCount === 3 ? "grid-cols-3" :
+                      "grid-cols-4";
                     return (
                       <div
                         className={clsx(
-                          "absolute top-full left-1/2 -translate-x-1/2 -mt-6 w-[1200px] mx-auto bg-white dark:bg-[#0d1117] border border-gray-100 dark:border-[#1565c0]/20 rounded-2xl shadow-2xl shadow-[#1565c0]/10 overflow-hidden transition-all duration-300 origin-top",
+                          "absolute top-full left-1/2 -translate-x-1/2 mt-3 mx-auto bg-white dark:bg-[#0d1117] border border-gray-100 dark:border-[#1565c0]/20 rounded-2xl shadow-2xl shadow-[#1565c0]/10 overflow-hidden transition-all duration-300 origin-top",
+                          widthClass,
                           openMenu === link.label
                             ? "opacity-100 scale-100 translate-y-0 "
                             : "opacity-0 scale-95 -translate-y-3 pointer-events-none",
@@ -334,7 +347,7 @@ export default function Header({ services, solutions = [], technologies = [], in
                             </p>
                           </div>
 
-                          <div className="grid grid-cols-4 gap-6">
+                          <div className={clsx("grid gap-6", gridClass)}>
                             {menuInfo.data.map((category, idx) => {
                               const IconComponent = solutionIcons[category.category] || technologyIcons[category.category] || industryIcons[category.category];
 
