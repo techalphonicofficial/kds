@@ -114,8 +114,8 @@ export default async function ServiceDetailPage({ params }) {
     const stats = sections.why_choose;
     const needService = sections.need_service;
     const needManpower = sections.Need_manpower;
-    
-
+   
+   
     const locations = (response.data.states || []).map((stateItem) => ({
       state: stateItem.state?.slug || stateItem.slug,
       stateLabel: stateItem.state?.name || stateItem.title,
@@ -346,17 +346,17 @@ export default async function ServiceDetailPage({ params }) {
                       className="group relative flex items-center gap-4 rounded-xl border border-blue-100 bg-gradient-to-r from-[#1565c0] to-[#1976d2] px-1 py-2 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-100"
                     >
 
-                    
+
                       <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition duration-300" />
 
-                    
+
                       <div className="relative z-10 flex items-center justify-center w-9 h-9 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 text-white text-sm font-black shrink-0">
 
                         {String(index + 1).padStart(2, "0")}
 
                       </div>
 
-                   
+
                       <div className="relative z-10 flex-1">
 
                         <p className="text-gray-300 font-bold text-[15px] leading-none">
@@ -365,7 +365,7 @@ export default async function ServiceDetailPage({ params }) {
 
                       </div>
 
-                  
+
                       <div className="relative z-10 text-white/70 group-hover:translate-x-1 transition-transform duration-300">
                         →
                       </div>

@@ -3,6 +3,7 @@ import { getServerData } from "@/lib/data";
 import { notFound } from "next/navigation";
 import { getBySlug, getData } from "@/lib/data";
 import { API_ENDPOINTS } from "@/config/api";
+import FAQSection from '@/components/common/FAQ'
 import { IMAGE_URL } from "@/config/api";
 
 import {
@@ -236,11 +237,13 @@ export default async function IndustryDetailPage({ params }) {
   try {
     const industriesListResponse = await getData(API_ENDPOINTS.INDUSTRIES_LIST);
     allApiIndustries = industriesListResponse?.data?.flatMap(cat => cat.industries || []) || [];
+   
   } catch (error) {
     console.error("Error fetching industries list for sidebar:", error);
   }
 
   // Combine API and local industries
+   const FAQData = await getData(API_ENDPOINTS.FAQ);
   const localIndustries = data.industries || [];
   const combinedIndustries = [...allApiIndustries];
 
@@ -311,9 +314,6 @@ export default async function IndustryDetailPage({ params }) {
         </div>
 
 
-
-
-
         <div className="container mx-auto px-5 pt-5 mt-5 max-w-7xl relative z-20">
 
 
@@ -331,9 +331,6 @@ export default async function IndustryDetailPage({ params }) {
           </Link>
 
 
-
-
-
           <div className="max-w-4xl">
 
 
@@ -348,9 +345,6 @@ export default async function IndustryDetailPage({ params }) {
               </span>
 
             </div>
-
-
-
 
 
 
@@ -378,11 +372,12 @@ export default async function IndustryDetailPage({ params }) {
 
             {/* Description */}
 
-            <p className="text-xl text-white/80 mb-5 max-w-3xl">
-
-              {hero_section.description}
-
-            </p>
+            <p
+              className="text-xl text-white/80 mb-5 max-w-3xl"
+              dangerouslySetInnerHTML={{
+                __html: hero_section.description,
+              }}
+            />
 
 
             {/* Buttons */}
@@ -513,15 +508,13 @@ export default async function IndustryDetailPage({ params }) {
 
               {/* Description */}
               <div className="space-y-6 text-lg text-gray-600 dark:text-[#8b949e] leading-relaxed">
-
-
-                <p>
-
-                  {leading?.description}
-
-                </p>
-
-
+                {leading?.description && (
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: leading.description,
+                    }}
+                  />
+                )}
               </div>
 
 
@@ -576,14 +569,14 @@ export default async function IndustryDetailPage({ params }) {
                     <div key={index}>
 
 
-                      <div className="text-4xl font-black text-[#1565c0]">
+                      {/* <div className="text-4xl font-black text-[#1565c0]">
 
                         {stat.key}
 
-                      </div>
+                      </div> */}
 
 
-                      <div className="text-sm text-gray-600 dark:text-[#8b949e]">
+                      <div className="text-[16px] text-gray-600 dark:text-[#8b949e]">
 
                         {stat.value}
 
@@ -723,8 +716,8 @@ export default async function IndustryDetailPage({ params }) {
       </section>
 
       {/* ─── STATISTICS COUNTER SECTION ───────────────────────────────── */}
-      <section className="py-5 bg-[#1565c0] relative overflow-hidden">
-
+      <section className="py-20 bg-gradient-to-br from-[#1565c0] via-[#1976d2] to-[#42a5f5] relative overflow-hidden">
+        {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div
             className="absolute inset-0"
@@ -736,89 +729,61 @@ export default async function IndustryDetailPage({ params }) {
           />
         </div>
 
-
-        <div className="container max-w-7xl relative z-10">
-
-
+        <div className="container max-w-7xl relative z-10 !mt-10">
           {/* Heading */}
-          <div className="text-center mb-5">
-
-
-            <h2 className="text-4xl md:text-5xl font-black text-white mb-2">
-
+          <div className="text-center mb-8">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-5">
               {bynumber?.title}
-
             </h2>
 
-
-
-            <p className="text-xl text-white/80 max-w-2xl mx-auto">
-
-              {bynumber?.description}
-
-            </p>
-
-
+            <div
+              className="max-w-3xl mx-auto text-lg  text-white/90"
+              dangerouslySetInnerHTML={{
+                __html: bynumber?.description,
+              }}
+            />
           </div>
 
+          {/* Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+            {bynumber?.extra_data?.map((stat, index) => (
+              <div
+                key={index}
+                className="relative bg-white rounded-xl shadow-xl !p-4 min-h-[360px] flex flex-col text-center transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl group overflow-hidden"
+              >
+                {/* Card Number */}
+                <span className="absolute top-5 right-5 text-5xl font-black text-[#1565c0]/10">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+
+                {/* Icon */}
 
 
+                {/* Title */}
+                <h3
+                  className="text-2xl font-bold text-gray-900 leading-tight mb-1"
+                  dangerouslySetInnerHTML={{
+                    __html: stat.key,
+                  }}
+                />
 
+                {/* Divider */}
+                <div className="w-16 h-1 bg-[#1565c0] rounded-full mx-auto mb-5"></div>
 
-          {/* Numbers */}
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-
-
-            {
-              bynumber?.extra_data?.map((stat, index) => (
-
+                {/* Description */}
                 <div
-                  key={index}
-                  className="text-center group"
-                >
+                  className="text-gray-600 leading-7 text-[15px] flex-grow"
+                  dangerouslySetInnerHTML={{
+                    __html: stat.value,
+                  }}
+                />
 
-
-                  <div className="inline-flex p-4 rounded-2xl bg-white/10 backdrop-blur-sm mb-4 group-hover:scale-110 transition-transform">
-
-
-                    <BarChart3 className="w-8 h-8 text-white" />
-
-
-                  </div>
-
-
-
-
-
-                  <div className="text-3xl md:text-4xl font-black text-white mb-2">
-
-                    {stat.key}
-
-                  </div>
-
-
-
-                  <p className="text-sm text-white/70">
-
-                    {stat.value}
-
-                  </p>
-
-
-                </div>
-
-
-              ))
-            }
-
-
+                {/* Bottom Hover Line */}
+                <div className="absolute bottom-0 left-0 h-1 w-0 bg-[#1565c0] group-hover:w-full transition-all duration-500"></div>
+              </div>
+            ))}
           </div>
-
-
-
         </div>
-
       </section>
 
       {/* ─── CAPABILITIES GRID ────────────────────────────────────────── */}
@@ -839,7 +804,7 @@ export default async function IndustryDetailPage({ params }) {
 
 
 
-            <h2 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-2">
+            <h2 className="text-5xl md:text-4xl font-black text-gray-900 dark:text-white !mb-4">
 
               {capability?.subtitle}
 
@@ -847,11 +812,14 @@ export default async function IndustryDetailPage({ params }) {
 
 
 
-            <p className="text-xl text-gray-600 dark:text-[#8b949e] max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-[#8b949e] max-w-3xl mx-auto"
 
-              {capability?.description}
 
-            </p>
+              dangerouslySetInnerHTML={{
+                __html: capability?.description,
+              }}
+
+            />
 
 
           </div>
@@ -956,7 +924,7 @@ export default async function IndustryDetailPage({ params }) {
             <div className="animate-fade-in-up">
 
 
-              <span className="text-[#1565c0] font-black text-sm uppercase tracking-[0.3em] mb-4 block">
+              <span className="text-[#1565c0] font-black text-sm uppercase tracking-[0.2em] mb-4 block">
 
                 {results?.title}
 
@@ -965,33 +933,24 @@ export default async function IndustryDetailPage({ params }) {
 
 
 
-              <h2 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-3">
+              <p className="text-5xl md:text-xl text-gray-500 dark:text-white mb-3">
 
 
                 {results?.subtitle}
 
 
-                <br />
 
 
-                <span className="text-[#1565c0]">
-
-                  {industry.title}
-
-                </span>
-
-
-              </h2>
-
-
-
-
-
-              <p className="text-lg text-gray-600 dark:text-[#8b949e] mb-3 leading-relaxed">
-
-                {results?.description}
 
               </p>
+
+              <p className="text-lg text-black-600 font-bold dark:text-[#8b949e] mb-3 leading-relaxed"
+
+                dangerouslySetInnerHTML={{
+                  __html: results?.description,
+                }}
+
+              />
 
 
 
@@ -1013,23 +972,17 @@ export default async function IndustryDetailPage({ params }) {
                     >
 
 
-                      <div className="text-4xl font-black text-[#1565c0]">
+                      {/* <div className="text-4xl font-black text-[#1565c0]">
 
                         {metric.key}
 
-                      </div>
+                      </div> */}
 
 
                       <div>
-
-
-                        <h4 className="text-xl font-black text-gray-900 dark:text-white mb-2">
-
+                        <h4 className="!text-sm md:!text-[20px] !font-medium !text-gray-600 dark:!text-gray-400 !mb-2">
                           {metric.value}
-
                         </h4>
-
-
                       </div>
 
 
@@ -1119,15 +1072,13 @@ export default async function IndustryDetailPage({ params }) {
 
 
 
-            <h2 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-3">
-
+            <p className="text-base font-normal !text-gray-600 dark:!text-gray-400 mb-3">
               {journey?.subtitle}
-
-            </h2>
-
+            </p>
 
 
-            <p className="text-xl text-gray-600 dark:text-[#8b949e] max-w-3xl mx-auto">
+
+            <p className="text-xl text-black dark:text-[#8b949e] max-w-3xl mx-auto">
 
               {journey?.description.replace(/<[^>]*>/g, "")}
 
@@ -1200,10 +1151,8 @@ export default async function IndustryDetailPage({ params }) {
 
                         {/* Title */}
 
-                        <h4 className="text-2xl font-black text-gray-900 dark:text-white mb-3">
-
+                        <h4 className="!text-[18px] !font-normal !text-gray-600 dark:!text-gray-400 mb-3">
                           {milestone.value}
-
                         </h4>
 
 
@@ -1309,8 +1258,6 @@ export default async function IndustryDetailPage({ params }) {
       </section>
 
 
-
-
       {/* ─── PARTNERS & CERTIFICATIONS ────────────────────────────────── */}
       <section className="py-16 bg-gray-50 dark:bg-[#0a0e15]">
 
@@ -1349,6 +1296,8 @@ export default async function IndustryDetailPage({ params }) {
         </div>
 
       </section>
+
+
 
       {/* ─── CTA SECTION WITH FORM ────────────────────────────────────── */}
       <section className="relative py-5 overflow-hidden">
@@ -1414,6 +1363,8 @@ export default async function IndustryDetailPage({ params }) {
         </div>
       </section>
 
+
+    <FAQSection faqs={FAQData} />
       {/* ─── RELATED INDUSTRIES ───────────────────────────────────────── */}
       {/* {relatedIndustries.length > 0 && (
         <section className="py-24">
