@@ -1077,12 +1077,12 @@ export default async function IndustryDetailPage({ params }) {
             </p>
 
 
-
-            <p className="text-xl text-black dark:text-[#8b949e] max-w-3xl mx-auto">
-
-              {journey?.description.replace(/<[^>]*>/g, "")}
-
-            </p>
+<p className="text-xl text-black dark:text-[#8b949e] max-w-3xl mx-auto">
+  {journey?.description
+    ?.replace(/<[^>]*>/g, "") // Remove HTML tags
+    ?.replace(/&nbsp;/g, " ") // Replace &nbsp; with space
+    ?.trim()}
+</p>
 
 
           </div>
