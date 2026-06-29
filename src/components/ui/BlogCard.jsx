@@ -13,21 +13,21 @@ export default function BlogCard({ post }) {
 
 
   return (
-    <Link 
-      href={`/blog/${post.slug}`} 
+    <Link
+      href={`/blog/${post.slug}`}
       className="group block h-full"
     >
 
-      <div 
+      <div
         className="premium-glass p-4 rounded-[2rem] border-white/5 
         group-hover:border-[#1565c0]/40 transition-all duration-500 
         h-full flex flex-col relative overflow-hidden"
-        style={{background:'#ffffffb3'}}
+        style={{ background: '#ffffffb3' }}
       >
 
 
         {/* Image Area */}
-        <div className="relative h-56 rounded-2xl bg-[#0d1117] overflow-hidden mb-6 border border-white/5">
+        <div className="relative h-72 rounded-2xl bg-[#0d1117] overflow-hidden mb-6 border border-white/5">
 
 
           {
@@ -129,7 +129,7 @@ export default function BlogCard({ post }) {
 
             Read Analysis
 
-            <ArrowRight size={14}/>
+            <ArrowRight size={14} />
 
           </div>
 

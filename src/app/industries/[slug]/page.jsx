@@ -1088,12 +1088,7 @@ export default async function IndustryDetailPage({ params }) {
           </div>
 
 
-
-
-
-
           <div className="relative">
-
 
             {/* Timeline Line */}
             <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-0.5 h-full bg-gradient-to-b from-[#1565c0]/20 via-[#1565c0]/40 to-[#1565c0]/20" />
@@ -1151,9 +1146,9 @@ export default async function IndustryDetailPage({ params }) {
 
                         {/* Title */}
 
-                        <h4 className="!text-[18px] !font-normal !text-gray-600 dark:!text-gray-400 mb-3">
+                        <p className="!text-[18px] !font-normal !text-gray-600 dark:!text-gray-400 mb-3">
                           {milestone.value}
-                        </h4>
+                        </p>
 
 
 

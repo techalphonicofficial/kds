@@ -26,6 +26,8 @@ import ServiceCard from "@/components/ui/ServiceCard";
 import SubServiceCard from "@/components/ui/SubServiceCard";
 import ServiceDetailLocationTabs from "@/components/ui/ServiceDetailLocationTabs";
 import HeroBanner from "@/components/ui/heroBanner";
+import Keyfeature from "@/components/common/keyfeature/Keyfeature";
+import Benefits from "@/components/common/benefit/Benefits";
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -110,12 +112,14 @@ export default async function ServiceDetailPage({ params }) {
     const content = sections.content_key;
     const benefit = sections.benefits;
     const advantage = sections.Advantage
+    const security_management = sections.security_management;
+    const professional_trained = sections.professional_trained;
     const related = sections.related_service;
     const stats = sections.why_choose;
     const needService = sections.need_service;
     const needManpower = sections.Need_manpower;
-   
-   
+
+
     const locations = (response.data.states || []).map((stateItem) => ({
       state: stateItem.state?.slug || stateItem.slug,
       stateLabel: stateItem.state?.name || stateItem.title,
@@ -156,175 +160,7 @@ export default async function ServiceDetailPage({ params }) {
 
         <ServiceHero service={hero_section} />
 
-        {/* <section className="relative mt-5 pt-5 pb-5 hero-bg overflow-hidden">
-          <div className="absolute inset-0 hero-grid opacity-30" />
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#1565c0]/10 glow-blob rounded-full blur-[120px]" />
-          <div className="container mx-auto mt-5 px-6 max-w-7xl relative z-10">
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-              Left Column - Service Info
-              <div
-                className="animate-fade-in-up transition-colors duration-500"
-                style={{ animationDelay: "0.1s" }}
-              >
-                <Link
-                  href="/services"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full premium-glass border-[#1565c0]/70 mb-2 animate-fade-in-up hover:border-[#1565c0] transition-colors group w-fit"
-                >
-                  <ArrowRight
-                    size={14}
-                    className="group-hover:-translate-x-1 transition-transform rotate-180 text-white"
-                  />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1565c0]">
-                    Back to All Services
-                  </span>
-                </Link>
-                <h1
-                  className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black !text-gray-200 dark:text-white mb-6 leading-[1.1] tracking-tighter transition-colors duration-500"
-                  style={{ fontFamily: "Outfit, sans-serif" }}
-                >
-                  {service.title}
-                </h1>
-                <p className="text-gray-300 dark:text-[#8b949e] text-base md:text-lg lg:text-xl leading-relaxed max-w-3xl italic transition-colors duration-500">
-                  {service.shortDesc}
-                </p>
-
-                Quick Features Preview
-                <div className="flex flex-wrap gap-3 mt-6">
-                  {service.features?.slice(0, 3).map((feature, idx) => (
-                    <div key={idx} className="flex items-center gap-2 bg-white dark:bg-white/5 backdrop-blur-sm px-3 py-2 rounded-full border border-[#1565c0]/20">
-                      <CheckCircle size={14} className="text-[#1565c0]" />
-                      <span className="text-xs text-gray-600 dark:text-gray-400">{feature.substring(0, 20)}...</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              Right Column - Enquiry Form
-              <div
-                className="animate-fade-in-up"
-                style={{ animationDelay: "0.2s" }}
-              >
-                <div className="bg-white dark:bg-[#0d1117]/90 backdrop-blur-xl rounded-[2rem] p-4 md:p-8 border border-gray-200 dark:border-white/5 shadow-2xl">
-                  <div className="mb-6">
-                    <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">
-                      Enquire About This Service
-                    </h3>
-                    <p className="text-gray-600 dark:text-[#8b949e] text-sm">
-                      Fill in your details and we'll get back to you within 24 hours
-                    </p>
-                  </div>
-
-                  <form className="space-y-4">
-                    <div className=" grid grid-cols-1 md:grid-cols-2 gap-2">
-                      Name Field
-                      <div>
-                        <label htmlFor="name" className="block text-xs font-medium text-gray-700 dark:text-gray-300  mb-2">
-                          Full Name <span className="text-[#1565c0]">*</span>
-                        </label>
-                        <div className="relative">
-                          <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                          <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            required
-                            placeholder="John Doe"
-                            className="w-full ps-5 py-2 bg-white dark:bg-[#161b22] border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1565c0]/20 focus:border-[#1565c0] text-gray-900 dark:text-white text-sm transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      Email Field
-                      <div>
-                        <label htmlFor="email" className="block text-xs font-medium text-gray-700 dark:text-gray-300  mb-2">
-                          Email Address <span className="text-[#1565c0]">*</span>
-                        </label>
-                        <div className="relative">
-                          <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                          <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            required
-                            placeholder="john@company.com"
-                            className="w-full  ps-5 py-2 bg-white dark:bg-[#161b22] border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1565c0]/20 focus:border-[#1565c0] text-gray-900 dark:text-white text-sm transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      Phone Field
-                      <div>
-                        <label htmlFor="phone" className="block text-xs font-medium text-gray-700 dark:text-gray-300  mb-2">
-                          Phone Number <span className="text-[#1565c0]">*</span>
-                        </label>
-                        <div className="relative">
-                          <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                          <input
-                            type="tel"
-                            id="phone"
-                            name="phone"
-                            required
-                            placeholder="+1 (555) 000-0000"
-                            className="w-full ps-5 py-2 bg-white dark:bg-[#161b22] border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1565c0]/20 focus:border-[#1565c0] text-gray-900 dark:text-white text-sm transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      Website Field
-                      <div>
-                        <label htmlFor="website" className="block text-xs font-medium text-gray-700 dark:text-gray-300  mb-2">
-                          Website (Optional)
-                        </label>
-                        <div className="relative">
-                          <Globe size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                          <input
-                            type="url"
-                            id="website"
-                            name="website"
-                            placeholder="https://yourcompany.com"
-                            className="w-full ps-5 py-2 bg-white dark:bg-[#161b22] border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1565c0]/20 focus:border-[#1565c0] text-gray-900 dark:text-white text-sm transition-all"
-                          />
-                        </div>
-                      </div>
-
-                    </div>
-
-                    Message Field
-                    <div>
-                      <label htmlFor="message" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Your Message <span className="text-[#1565c0]">*</span>
-                      </label>
-                      <div className="relative">
-                        <MessageSquare size={16} className="absolute left-4 top-4 text-gray-400" />
-                        <textarea
-                          id="message"
-                          name="message"
-                          required
-                          rows={4}
-                          placeholder="Tell us about your requirements..."
-                          className="w-full ps-5 py-2 bg-white dark:bg-[#161b22] border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1565c0]/20 focus:border-[#1565c0] text-gray-900 dark:text-white text-sm transition-all resize-none"
-                        />
-                      </div>
-                    </div>
-
-                    Hidden field for service name
-                    <input type="hidden" name="service" value={service.title} />
-
-                    Submit Button
-                    <button
-                      type="submit"
-                      className="w-full bg-gradient-to-r from-[#1565c0] to-[#0d47a1] text-white font-bold py-2 px-6 rounded-xl hover:from-[#1976d2] hover:to-[#1565c0] transition-all duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#1565c0]/50 flex items-center justify-center gap-2 group"
-                    >
-                      <span>Send Enquiry</span>
-                      <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section> */}
 
         {/* ─── CONTENT SECTION ─────────────────────────────────────────── */}
         <section className=" relative  flex flex-row mt-16 lg:mt-16">
@@ -429,74 +265,135 @@ export default async function ServiceDetailPage({ params }) {
                   <p className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed transition-colors duration-500">
                     {content.description.replace(/<[^>]*>/g, "")}
                   </p>
+
+
                 </div>
 
                 {/* Features */}
-                <div id="features" className="scroll-mt-28 my-4">
 
-                  <h3
-                    className="text-2xl font-black text-gray-900 dark:text-white tracking-tight transition-colors duration-500 mb-2"
-                    style={{ fontFamily: "Outfit, sans-serif" }}
-                  >
-                    {content.extra_data?.map((text, idx) => (
-                      <div>
-                        {text.key}
-                      </div>
-                    ))}
-                  </h3>
+                <Keyfeature data={content} />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                    {content.extra_data?.map((feature, idx) => (
-                      feature.points?.slice(0, 4).map((item, i) => (
+                <Benefits data={benefit} />
 
-                        <div
-                          key={`${idx}-${i}`}
-                          className="flex items-start gap-3 p-4 bg-white dark:bg-transparent premium-glass border border-gray-200 dark:border-white/5 rounded-xl hover:border-[#1565c0]/40 transition-all group"
-                        >
+                {security_management && (
+  <section id="security-management" className="my-16">
+    {/* Heading */}
+    <div className="max-w-3xl mb-12">
+      <span className="inline-flex items-center px-4 py-1 rounded-full bg-[#1565c0]/10 text-[#1565c0] text-sm font-semibold mb-4">
+        Our Process
+      </span>
 
-                          <CheckCircle
-                            size={20}
-                            className="text-[#1565c0] shrink-0 mt-0.5"
-                          />
+      <h2
+        className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white"
+        style={{ fontFamily: "Outfit, sans-serif" }}
+      >
+        {security_management.title}
+      </h2>
 
-                          <span className="text-gray-700 dark:text-gray-300 text-sm">
-                            {item.point}
-                          </span>
+      {security_management.subtitle && (
+        <p className="mt-4 text-lg leading-8 text-gray-600 dark:text-[#8b949e]">
+          {security_management.subtitle
+            ?.replace(/<[^>]*>/g, "")
+            ?.replace(/&nbsp;/g, " ")
+            ?.trim()}
+        </p>
+      )}
+    </div>
 
-                        </div>
+    {/* Process */}
+    <div className="relative">
+      {/* Vertical Line */}
+      <div className="hidden md:block absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200 dark:bg-gray-700"></div>
 
-                      ))
-                    ))}
+      <div className="space-y-8">
+        {security_management.extra_data?.map((item, index) => (
+          <div
+            key={index}
+            className="relative flex gap-6 group"
+          >
+            {/* Step */}
+            <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#1565c0] text-white font-bold shadow-lg">
+              {String(index + 1).padStart(2, "0")}
+            </div>
 
-                  </div>
+            {/* Card */}
+            <div className="flex-1 rounded-3xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#161b22] !p-3 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                {item.key}
+              </h4>
 
-                </div>
+              <p className="text-gray-600 dark:text-[#8b949e] leading-7">
+                {item.value
+                  ?.replace(/<[^>]*>/g, "")
+                  ?.replace(/&nbsp;/g, " ")
+                  ?.trim()}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+{professional_trained && (
+  <section id="professional-trained" className="my-16">
+    {/* Heading */}
+    <div className="max-w-3xl mb-10">
+      <h2
+        className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-4"
+        style={{ fontFamily: "Outfit, sans-serif" }}
+      >
+        {professional_trained.title}
+      </h2>
 
-                {/* Benefits */}
-                {benefit && (
-                  <div id="benefits" className="scroll-mt-28 my-4">
-                    <h3
-                      className="text-2xl font-black text-gray-900 dark:text-white tracking-tight transition-colors duration-500"
-                      style={{ fontFamily: "Outfit, sans-serif" }}
-                    >
-                      {benefit.title}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {benefit.points?.map((benefit, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-[#161b22] rounded-xl"
-                        >
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#1565c0] mt-2" />
-                          <span className="text-gray-600 dark:text-gray-400 text-sm">
-                            {benefit.point}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+      {professional_trained.subtitle && (
+        <p className="text-lg text-gray-600 dark:text-[#8b949e] leading-8">
+          {professional_trained.subtitle
+            ?.replace(/<[^>]*>/g, "")
+            ?.replace(/&nbsp;/g, " ")
+            ?.trim()}
+        </p>
+      )}
+
+      {professional_trained.description && (
+        <p className="mt-6 text-lg font-semibold text-[#1565c0]">
+          {professional_trained.description
+            ?.replace(/<[^>]*>/g, "")
+            ?.replace(/&nbsp;/g, " ")
+            ?.trim()}
+        </p>
+      )}
+    </div>
+
+    {/* Cards */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {professional_trained.extra_data?.map((item, index) => (
+        <div
+          key={index}
+          className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#161b22] !p-4 hover:border-[#1565c0] hover:shadow-lg transition-all duration-300"
+        >
+          <div className="flex items-center gap-4 mb-4">
+            <div className="h-10 w-10 rounded-full bg-[#4172ae] text-white flex items-center justify-center font-bold">
+              {index + 1}
+            </div>
+
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+              {item.key?.trim()}
+            </h3>
+          </div>
+
+          <p className="text-gray-600 dark:text-[#8b949e] leading-7">
+            {item.value
+              ?.replace(/<[^>]*>/g, "")
+              ?.replace(/&nbsp;/g, " ")
+              ?.trim()}
+          </p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
 
                 {/* Content Sections from the service.content array */}
                 {advantage && (

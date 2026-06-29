@@ -8,6 +8,7 @@ import {
   Twitter,
   Linkedin,
 } from "lucide-react";
+import { FaLinkedinIn } from "react-icons/fa";
 import Link from "next/link";
 import { API_ENDPOINTS, IMAGE_URL, API_URL } from "@/config/api";
 import { getPageSEO } from "@/lib/metadata";
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }) {
     const metaTitle = post.meta_title || `${name} | KDS International Blog`;
     const metaDescription = post.meta_description || post.excerpt || "";
     const metaKeyword = post.meta_keywords || `${name}, blog, insights, industry news, KDS International`;
-    
+
     const imagePath = post.featured_image || "";
     const imageUrl = imagePath
       ? (imagePath.startsWith("http")
@@ -66,7 +67,7 @@ export default async function BlogPostPage({ params }) {
   try {
     const response = await getBySlug(API_ENDPOINTS.BLOGS_SLUG, slug);
     blog = response?.data;
-    console.log("blogdata",blog)
+    console.log("blogdata", blog)
   } catch (error) {
     console.error("Error fetching blog details:", error);
   }
@@ -108,7 +109,7 @@ export default async function BlogPostPage({ params }) {
 
   return (
     <main className="overflow-hidden bg-white dark:bg-[#0d1117] transition-colors duration-500">
-      
+
       {/* ─── HERO SECTION ──────────────────────────────────────────────── */}
       <section className="relative  mt-5 pt-5 pb-5 hero-bg overflow-hidden">
         <div className="absolute inset-0 hero-grid opacity-30" />
@@ -192,19 +193,19 @@ export default async function BlogPostPage({ params }) {
                 <div className="absolute top-0 left-0 w-32 h-32 bg-[#1565c0]/5 blur-3xl" />
 
                 {/* ADD IMAGE HERE */}
-               {blog.details?.[0]?.image && (
-  <div className="mb-4 relative rounded-2xl overflow-hidden">
-    <img
-      src={
-        blog.details[0].image.startsWith("http")
-          ? blog.details[0].image
-          : `${IMAGE_URL}/${blog.details[0].image}`
-      }
-      alt={blog.details[0].alt_text || blog.title}
-      className="w-full h-auto object-cover"
-    />
-  </div>
-)}
+                {blog.details?.[0]?.image && (
+                  <div className="mb-4 relative rounded-2xl overflow-hidden">
+                    <img
+                      src={
+                        blog.details[0].image.startsWith("http")
+                          ? blog.details[0].image
+                          : `${IMAGE_URL}/${blog.details[0].image}`
+                      }
+                      alt={blog.details[0].alt_text || blog.title}
+                      className="w-full h-auto object-cover"
+                    />
+                  </div>
+                )}
 
                 <div className="prose prose-teal dark:prose-invert max-w-none relative z-10 transition-colors duration-500">
                   {blog.excerpt && (
@@ -213,98 +214,98 @@ export default async function BlogPostPage({ params }) {
                     </p>
                   )}
 
-                {hasSpecialSections ? (
-                  <>
-                    {blog.details
-                      ?.filter(detail =>
-                        detail.content.includes("Executive Summary")
-                      )
-                      .map(detail => (
-                        <div key={detail.id}>
-                          <div
-                            className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed mb-4 transition-colors duration-500"
-                            dangerouslySetInnerHTML={{
-                              __html: detail.content
-                            }}
-                          />
-                        </div>
-                      ))}
+                  {hasSpecialSections ? (
+                    <>
+                      {blog.details
+                        ?.filter(detail =>
+                          detail.content.includes("Executive Summary")
+                        )
+                        .map(detail => (
+                          <div key={detail.id}>
+                            <div
+                              className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed mb-4 transition-colors duration-500"
+                              dangerouslySetInnerHTML={{
+                                __html: detail.content
+                              }}
+                            />
+                          </div>
+                        ))}
 
-                    <div className="my-4 p-4 bg-white dark:bg-[#0d1117] border border-gray-200 dark:border-white/5 rounded-[2rem] shadow-sm dark:shadow-inner relative overflow-hidden group transition-colors duration-500">
-                      <div className="absolute inset-0 hero-grid opacity-10" />
-                      <h3 className="text-xl font-black text-gray-900 dark:text-white mb-8 tracking-widest uppercase relative z-10 transition-colors duration-500">
-                        Strategic Takeaways
-                      </h3>
-                      <ul className="space-y-6 relative z-10 ps-2">
-                        {(() => {
-                          const strategic = blog.details?.find(
-                            detail => detail.content.includes("Strategic Takeaways")
-                          )?.content;
+                      <div className="my-4 p-4 bg-white dark:bg-[#0d1117] border border-gray-200 dark:border-white/5 rounded-[2rem] shadow-sm dark:shadow-inner relative overflow-hidden group transition-colors duration-500">
+                        <div className="absolute inset-0 hero-grid opacity-10" />
+                        <h3 className="text-xl font-black text-gray-900 dark:text-white mb-8 tracking-widest uppercase relative z-10 transition-colors duration-500">
+                          Strategic Takeaways
+                        </h3>
+                        <ul className="space-y-6 relative z-10 ps-2">
+                          {(() => {
+                            const strategic = blog.details?.find(
+                              detail => detail.content.includes("Strategic Takeaways")
+                            )?.content;
 
-                          const parser = strategic
-                            ?.match(/<li>(.*?)<\/li>/g)
-                            ?.map(item =>
-                              item.replace(/<[^>]+>/g, "")
-                            );
+                            const parser = strategic
+                              ?.match(/<li>(.*?)<\/li>/g)
+                              ?.map(item =>
+                                item.replace(/<[^>]+>/g, "")
+                              );
 
-                          return parser?.map((item, i) => (
-                            <li key={i} className="flex items-start gap-3">
-                              <div className="w-6 h-6 rounded-full bg-[#1565c0]/20 flex icon items-center justify-center shrink-0 mt-1">
-                                <div className="w-2 h-2 rounded-full bg-[#1565c0] shadow-[0_0_10px_#1565c0]" />
-                              </div>
-                              <p className="text-gray-700 dark:text-[#e6edf3] font-medium transition-colors duration-500">
-                                {item}
-                              </p>
-                            </li>
-                          ));
-                        })()}
-                      </ul>
-                    </div>
+                            return parser?.map((item, i) => (
+                              <li key={i} className="flex items-start gap-3">
+                                <div className="w-6 h-6 rounded-full bg-[#1565c0]/20 flex icon items-center justify-center shrink-0 mt-1">
+                                  <div className="w-2 h-2 rounded-full bg-[#1565c0] shadow-[0_0_10px_#1565c0]" />
+                                </div>
+                                <p className="text-gray-700 dark:text-[#e6edf3] font-medium transition-colors duration-500">
+                                  {item}
+                                </p>
+                              </li>
+                            ));
+                          })()}
+                        </ul>
+                      </div>
 
-                    {blog.details
-                      ?.filter(detail =>
-                        detail.content.includes("Technological Integration")
-                      )
-                      .map(detail => (
-                        <div key={detail.id}>
-                          <div
-                            className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed mb-8 transition-colors duration-500"
-                            dangerouslySetInnerHTML={{
-                              __html: detail.content
-                            }}
-                          />
-                        </div>
-                      ))}
-                  </>
-                ) : (
-                  blog.details?.map((detail, idx) => (
-                    <div key={detail.id} className="mb-8">
-                      {idx > 0 && detail.image && detail.image !== blog.featured_image && (
-                        <div className="mb-6 relative rounded-2xl overflow-hidden shadow-md">
-                          <img
-                            src={
-                              detail.image.startsWith("http")
-                                ? detail.image
-                                : `${IMAGE_URL}/${detail.image}`
-                            }
-                            alt={detail.alt_text || blog.title}
-                            className="w-full h-auto object-cover max-h-[450px]"
-                          />
-                        </div>
-                      )}
-                      <div
-                        className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed transition-colors duration-500"
-                        dangerouslySetInnerHTML={{
-                          __html: detail.content
-                        }}
-                      />
-                    </div>
-                  ))
-                )}
+                      {blog.details
+                        ?.filter(detail =>
+                          detail.content.includes("Technological Integration")
+                        )
+                        .map(detail => (
+                          <div key={detail.id}>
+                            <div
+                              className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed mb-8 transition-colors duration-500"
+                              dangerouslySetInnerHTML={{
+                                __html: detail.content
+                              }}
+                            />
+                          </div>
+                        ))}
+                    </>
+                  ) : (
+                    blog.details?.map((detail, idx) => (
+                      <div key={detail.id} className="mb-8">
+                        {idx > 0 && detail.image && detail.image !== blog.featured_image && (
+                          <div className="mb-6 relative rounded-2xl overflow-hidden shadow-md">
+                            <img
+                              src={
+                                detail.image.startsWith("http")
+                                  ? detail.image
+                                  : `${IMAGE_URL}/${detail.image}`
+                              }
+                              alt={detail.alt_text || blog.title}
+                              className="w-full h-auto object-cover max-h-[450px]"
+                            />
+                          </div>
+                        )}
+                        <div
+                          className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed transition-colors duration-500"
+                          dangerouslySetInnerHTML={{
+                            __html: detail.content
+                          }}
+                        />
+                      </div>
+                    ))
+                  )}
                 </div>
 
                 {/* Author Signature */}
-                <div className="mt-20 pt-12 border-t border-gray-200 dark:border-white/5 flex flex-col md:flex-row gap-10 items-center transition-colors duration-500">
+                {/* <div className="mt-20 pt-12 border-t border-gray-200 dark:border-white/5 flex flex-col md:flex-row gap-10 items-center transition-colors duration-500">
                   <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-[#1565c0] to-[#0d47a1] flex items-center justify-center text-white text-4xl font-black shrink-0 shadow-2xl rotate-3 overflow-hidden">
                     {blog.author?.profile_photo ? (
                       <img
@@ -327,6 +328,63 @@ export default async function BlogPostPage({ params }) {
                       The {authorName} division at KDS International leverages
                       43 years of forensic industrial data to provide unmatched
                       perspectives on global trade and precision engineering.
+                    </p>
+                  </div>
+                </div> */}
+                <div className="mt-20 pt-12 border-t border-gray-200 dark:border-white/5 flex flex-col md:flex-row gap-10 items-center transition-colors duration-500">
+                  {/* Author Image */}
+                  <div className="relative shrink-0">
+                    <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-[#1565c0] to-[#0d47a1] flex items-center justify-center text-white text-4xl font-black shadow-2xl rotate-3 overflow-hidden">
+                      {blog.author?.profile_photo ? (
+                        <img
+                          src={
+                            blog.author.profile_photo.startsWith("http")
+                              ? blog.author.profile_photo
+                              : `${IMAGE_URL}/${blog.author.profile_photo}`
+                          }
+                          alt={authorName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        authorName.charAt(0)
+                      )}
+                    </div>
+
+                    {/* LinkedIn Icon */}
+                    <a
+                      href={blog.author?.linkedin || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute -bottom-2 -left-2 w-10 h-10 rounded-full bg-[#0A66C2] text-white flex items-center justify-center shadow-lg hover:scale-110 transition"
+                    >
+                      <FaLinkedinIn size={18} />
+                    </a>
+                  </div>
+
+                  {/* Author Details */}
+                  <div className="text-center md:text-left">
+                    <p className="text-sm uppercase tracking-wider text-[#1565c0] font-semibold mb-1">
+                      Author
+                    </p>
+
+                    <h3
+                      className="text-2xl font-black text-gray-900 dark:text-white mb-3"
+                      style={{ fontFamily: "Outfit, sans-serif" }}
+                    >
+                      {authorName}
+                    </h3>
+
+                    <h4
+                      className="text-xl font-bold text-gray-900 dark:text-white mb-3"
+                      style={{ fontFamily: "Outfit, sans-serif" }}
+                    >
+                      About the Analysis Team
+                    </h4>
+
+                    <p className="text-gray-600 dark:text-[#8b949e] leading-relaxed max-w-xl italic">
+                      The <strong>{authorName}</strong> division at KDS International leverages
+                      43 years of forensic industrial data to provide unmatched perspectives on
+                      global trade and precision engineering.
                     </p>
                   </div>
                 </div>
