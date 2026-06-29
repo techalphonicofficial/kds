@@ -26,6 +26,12 @@ import {
   Zap,
   Construction,
   Radio,
+  Hospital,
+  Monitor,
+  ShoppingCart,
+  Landmark,
+  Coins,
+  Theater,
 } from "lucide-react";
 import clsx from "clsx";
 import { solutionsData, technologyData } from "@/lib/solutionsAndTechData";
@@ -110,7 +116,16 @@ const industryIcons = {
   "Manufacturing": Factory,
   "Energy & Utilities": Zap,
   "Infrastructure": Construction,
-  "Technology": Radio,
+  "Technology": Monitor,
+  "Healthcare": Hospital,
+  "Health Care": Hospital,
+  "Retail & Consumer": ShoppingCart,
+  "Public Sector": Landmark,
+  "Financial Services": Coins,
+  "Transportation": Truck,
+  "Transporatation": Truck,
+  "Transporatation ": Truck,
+  "Entertainment": Theater,
 };
 
 const formatTitle = (title) => {
@@ -163,13 +178,15 @@ export default function Header({ services, solutions = [], technologies = [], in
 
   const formattedIndustries = useMemo(() => {
     if (!industries || industries.length === 0) return industriesData;
-    return industries.map(cat => ({
-      category: cat.name,
-      items: (cat.industries || []).map(ind => ({
-        name: ind.name,
-        slug: ind.slug
+    return industries
+      .map(cat => ({
+        category: formatTitle(cat.name),
+        items: (cat.industries || []).map(ind => ({
+          name: formatTitle(ind.name),
+          slug: ind.slug
+        }))
       }))
-    }));
+      .filter(cat => cat.items.length > 0);
   }, [industries]);
 
   const getMenuData = (label) => {
@@ -317,6 +334,73 @@ export default function Header({ services, solutions = [], technologies = [], in
                   {(() => {
                     const menuInfo = getMenuData(link.label);
                     if (!menuInfo) return null;
+
+                    if (link.label === "Industries") {
+                      return (
+                        <div
+                          className={clsx(
+                            "absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white dark:bg-[#0d1117] border border-gray-100 dark:border-[#1565c0]/20 rounded-2xl shadow-2xl shadow-[#1565c0]/10 overflow-hidden transition-all duration-300 origin-top w-[1140px] !p-6",
+                            openMenu === link.label
+                              ? "opacity-100 scale-100 translate-y-0"
+                              : "opacity-0 scale-95 -translate-y-3 pointer-events-none",
+                          )}
+                        >
+                          <div className="text-center mb-6">
+                            <h2 className="text-[#0d47a1] dark:text-[#90caf9] font-black !text-xl uppercase tracking-widest">
+                              {menuInfo.header}
+                            </h2>
+                            <div className="flex items-center justify-center gap-2 mt-2">
+                              <div className="w-16 h-[2px] bg-[#1565c0]" />
+                              <div className="w-2.5 h-2.5 rounded-full bg-[#1565c0]" />
+                              <div className="w-16 h-[2px] bg-[#1565c0]" />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-4 gap-x-8 gap-y-6 text-start">
+                            {menuInfo.data.map((category, idx) => {
+                              const IconComponent = industryIcons[category.category] || Factory;
+
+                              return (
+                                <div key={idx} className="space-y-3">
+                                  <div className="flex items-center gap-3 border-b border-gray-100 dark:border-white/10 pb-2">
+                                    <IconComponent size={50} className="text-[#1565c0] shrink-0" />
+                                    <h3 className="font-extrabold text-gray-800 dark:text-white uppercase tracking-wider !text-[18px] leading-tight">
+                                      {category.category}
+                                    </h3>
+                                  </div>
+                                  <div className="space-y-2">
+                                    {category.items.map((item) => (
+                                      <Link
+                                        key={item.slug}
+                                        href={`/${menuInfo.baseSlug}/${item.slug}`}
+                                        className="flex items-center gap-2 text-[14px] font-semibold text-gray-600 dark:text-gray-400 hover:text-[#1565c0] dark:hover:text-[#90caf9] transition-all group/item py-0.5"
+                                      >
+                                        <span className="text-[#1565c0] dark:text-[#90caf9] font-bold text-[12px] group-hover/item:translate-x-0.5 transition-transform">
+                                          &gt;
+                                        </span>
+                                        <span className="group-hover/item:translate-x-0.5 transition-transform text-start">
+                                          {item.name}
+                                        </span>
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          <div className="mt-8">
+                            <Link
+                              href={menuInfo.viewAllLink}
+                              className="block w-full py-3 bg-[#1565c0] hover:bg-[#0d47a1] rounded-xl text-sm font-black text-center uppercase tracking-widest text-white transition-all shadow-md shadow-[#1565c0]/20 hover:scale-[1.01]"
+                            >
+                              {menuInfo.viewAllText}
+                            </Link>
+                          </div>
+                        </div>
+                      );
+                    }
+
                     const colCount = Math.min(4, Math.max(1, menuInfo.data?.length || 1));
                     const widthClass = 
                       colCount === 1 ? "w-[320px]" :
