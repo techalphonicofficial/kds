@@ -339,7 +339,7 @@ export default function Header({ services, solutions = [], technologies = [], in
                       return (
                         <div
                           className={clsx(
-                            "absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white dark:bg-[#0d1117] border border-gray-100 dark:border-[#1565c0]/20 rounded-2xl shadow-2xl shadow-[#1565c0]/10 overflow-hidden transition-all duration-300 origin-top w-[1140px] !p-6",
+                            "absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white dark:bg-[#0d1117] border border-gray-100 dark:border-[#1565c0]/20 rounded-2xl shadow-2xl shadow-[#1565c0]/10 overflow-hidden transition-all duration-300 origin-top w-[1140px] !p-6 z-[9999]",
                             openMenu === link.label
                               ? "opacity-100 scale-100 translate-y-0"
                               : "opacity-0 scale-95 -translate-y-3 pointer-events-none",
@@ -415,7 +415,7 @@ export default function Header({ services, solutions = [], technologies = [], in
                     return (
                       <div
                         className={clsx(
-                          "absolute top-full left-1/2 -translate-x-1/2 mt-3 mx-auto bg-white dark:bg-[#0d1117] border border-gray-100 dark:border-[#1565c0]/20 rounded-2xl shadow-2xl shadow-[#1565c0]/10 overflow-hidden transition-all duration-300 origin-top",
+                          "absolute top-full left-1/2 -translate-x-1/2 mt-3 mx-auto bg-white dark:bg-[#0d1117] border border-gray-100 dark:border-[#1565c0]/20 rounded-2xl shadow-2xl shadow-[#1565c0]/10 overflow-hidden transition-all duration-300 origin-top z-[9999]",
                           widthClass,
                           openMenu === link.label
                             ? "opacity-100 scale-100 translate-y-0 "

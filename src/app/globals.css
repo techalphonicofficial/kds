@@ -420,3 +420,15 @@ button {
   display: list-item !important;
 }
 
+@media (min-width: 1024px) {
+  html {
+    font-size: 78%;
+  }
+}
+@media (min-width: 1400px) {
+  html {
+    font-size: 85%;
+  }
+}
+
+
