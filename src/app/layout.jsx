@@ -4,6 +4,7 @@ import { getServerData, getData } from "@/lib/data";
 import { API_ENDPOINTS } from "@/config/api";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import GoogleMap from "@/components/layout/GoogleMap";
 import AOSInit from "@/components/common/AOSInit";
 import 'flowbite';
 
@@ -68,6 +69,7 @@ export default async function RootLayout({ children }) {
         <AOSInit />
         <Header services={services} solutions={solutions} technologies={technologies} industries={industries} siteName={data.siteInfo.name} theme={theme} />
         <main className="flex-1">{children}</main>
+        <GoogleMap />
         <Footer siteInfo={data.siteInfo} services={services} theme={theme} />
       </body>
     </html>
