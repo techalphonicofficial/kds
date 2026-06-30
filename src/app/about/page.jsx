@@ -22,7 +22,11 @@ export async function generateMetadata() {
 
     keywords:
       page?.meta_keywords?.split(",") || [],
+ alternates: {
+    canonical: page?.canonical_tag,
+  },
 
+  robots: page?.meta_robots_tag,
     openGraph: {
       title: page?.meta_title,
       description: page?.meta_description,

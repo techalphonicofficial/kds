@@ -50,6 +50,7 @@ export async function generateMetadata({ params }) {
     const metaDescription = serviceData?.meta_description || localService?.meta_description || localService?.shortDesc || "";
     const metaKeyword = serviceData?.meta_keyword || localService?.meta_keyword || `${title}, manpower services, staffing solutions`;
     const imagePath = serviceData?.image || localService?.image || "/services/og-default.jpg";
+    const metaRobot = serviceData?.canonical_tag;
     const imageUrl = imagePath.startsWith("http")
       ? imagePath
       : imagePath.startsWith("/")
@@ -65,6 +66,10 @@ export async function generateMetadata({ params }) {
         description: metaDescription,
         images: [{ url: imageUrl }],
       },
+      alternates: {
+        canonical: metaRobot,
+      },
+      robots: serviceData?.meta_robots_tag,
       other: {
         "script:type": typeof serviceData?.meta_schema === "string"
           ? serviceData.meta_schema
@@ -91,7 +96,6 @@ export async function generateMetadata({ params }) {
 // }
 
 export default async function ServiceDetailPage({ params }) {
-
 
   try {
 
@@ -277,123 +281,123 @@ export default async function ServiceDetailPage({ params }) {
                 <Benefits data={benefit} />
 
                 {security_management && (
-  <section id="security-management" className="my-16">
-    {/* Heading */}
-    <div className="max-w-3xl mb-12">
-      <span className="inline-flex items-center px-4 py-1 rounded-full bg-[#1565c0]/10 text-[#1565c0] text-sm font-semibold mb-4">
-        Our Process
-      </span>
+                  <section id="security-management" className="my-16">
+                    {/* Heading */}
+                    <div className="max-w-3xl mb-12">
+                      <span className="inline-flex items-center px-4 py-1 rounded-full bg-[#1565c0]/10 text-[#1565c0] text-sm font-semibold mb-4">
+                        Our Process
+                      </span>
 
-      <h2
-        className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white"
-        style={{ fontFamily: "Outfit, sans-serif" }}
-      >
-        {security_management.title}
-      </h2>
+                      <h2
+                        className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white"
+                        style={{ fontFamily: "Outfit, sans-serif" }}
+                      >
+                        {security_management.title}
+                      </h2>
 
-      {security_management.subtitle && (
-        <p className="mt-4 text-lg leading-8 text-gray-600 dark:text-[#8b949e]">
-          {security_management.subtitle
-            ?.replace(/<[^>]*>/g, "")
-            ?.replace(/&nbsp;/g, " ")
-            ?.trim()}
-        </p>
-      )}
-    </div>
+                      {security_management.subtitle && (
+                        <p className="mt-4 text-lg leading-8 text-gray-600 dark:text-[#8b949e]">
+                          {security_management.subtitle
+                            ?.replace(/<[^>]*>/g, "")
+                            ?.replace(/&nbsp;/g, " ")
+                            ?.trim()}
+                        </p>
+                      )}
+                    </div>
 
-    {/* Process */}
-    <div className="relative">
-      {/* Vertical Line */}
-      <div className="hidden md:block absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200 dark:bg-gray-700"></div>
+                    {/* Process */}
+                    <div className="relative">
+                      {/* Vertical Line */}
+                      <div className="hidden md:block absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200 dark:bg-gray-700"></div>
 
-      <div className="space-y-8">
-        {security_management.extra_data?.map((item, index) => (
-          <div
-            key={index}
-            className="relative flex gap-6 group"
-          >
-            {/* Step */}
-            <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#1565c0] text-white font-bold shadow-lg">
-              {String(index + 1).padStart(2, "0")}
-            </div>
+                      <div className="space-y-8">
+                        {security_management.extra_data?.map((item, index) => (
+                          <div
+                            key={index}
+                            className="relative flex gap-6 group"
+                          >
+                            {/* Step */}
+                            <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#1565c0] text-white font-bold shadow-lg">
+                              {String(index + 1).padStart(2, "0")}
+                            </div>
 
-            {/* Card */}
-            <div className="flex-1 rounded-3xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#161b22] !p-3 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-              <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                {item.key}
-              </h4>
+                            {/* Card */}
+                            <div className="flex-1 rounded-3xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#161b22] !p-3 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                              <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                                {item.key}
+                              </h4>
 
-              <p className="text-gray-600 dark:text-[#8b949e] leading-7">
-                {item.value
-                  ?.replace(/<[^>]*>/g, "")
-                  ?.replace(/&nbsp;/g, " ")
-                  ?.trim()}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-)}
-{professional_trained && (
-  <section id="professional-trained" className="my-16">
-    {/* Heading */}
-    <div className="max-w-3xl mb-10">
-      <h2
-        className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-4"
-        style={{ fontFamily: "Outfit, sans-serif" }}
-      >
-        {professional_trained.title}
-      </h2>
+                              <p className="text-gray-600 dark:text-[#8b949e] leading-7">
+                                {item.value
+                                  ?.replace(/<[^>]*>/g, "")
+                                  ?.replace(/&nbsp;/g, " ")
+                                  ?.trim()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+                )}
+                {professional_trained && (
+                  <section id="professional-trained" className="my-16">
+                    {/* Heading */}
+                    <div className="max-w-3xl mb-10">
+                      <h2
+                        className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-4"
+                        style={{ fontFamily: "Outfit, sans-serif" }}
+                      >
+                        {professional_trained.title}
+                      </h2>
 
-      {professional_trained.subtitle && (
-        <p className="text-lg text-gray-600 dark:text-[#8b949e] leading-8">
-          {professional_trained.subtitle
-            ?.replace(/<[^>]*>/g, "")
-            ?.replace(/&nbsp;/g, " ")
-            ?.trim()}
-        </p>
-      )}
+                      {professional_trained.subtitle && (
+                        <p className="text-lg text-gray-600 dark:text-[#8b949e] leading-8">
+                          {professional_trained.subtitle
+                            ?.replace(/<[^>]*>/g, "")
+                            ?.replace(/&nbsp;/g, " ")
+                            ?.trim()}
+                        </p>
+                      )}
 
-      {professional_trained.description && (
-        <p className="mt-6 text-lg font-semibold text-[#1565c0]">
-          {professional_trained.description
-            ?.replace(/<[^>]*>/g, "")
-            ?.replace(/&nbsp;/g, " ")
-            ?.trim()}
-        </p>
-      )}
-    </div>
+                      {professional_trained.description && (
+                        <p className="mt-6 text-lg font-semibold text-[#1565c0]">
+                          {professional_trained.description
+                            ?.replace(/<[^>]*>/g, "")
+                            ?.replace(/&nbsp;/g, " ")
+                            ?.trim()}
+                        </p>
+                      )}
+                    </div>
 
-    {/* Cards */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {professional_trained.extra_data?.map((item, index) => (
-        <div
-          key={index}
-          className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#161b22] !p-4 hover:border-[#1565c0] hover:shadow-lg transition-all duration-300"
-        >
-          <div className="flex items-center gap-4 mb-4">
-            <div className="h-10 w-10 rounded-full bg-[#4172ae] text-white flex items-center justify-center font-bold">
-              {index + 1}
-            </div>
+                    {/* Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {professional_trained.extra_data?.map((item, index) => (
+                        <div
+                          key={index}
+                          className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#161b22] !p-4 hover:border-[#1565c0] hover:shadow-lg transition-all duration-300"
+                        >
+                          <div className="flex items-center gap-4 mb-4">
+                            <div className="h-10 w-10 rounded-full bg-[#4172ae] text-white flex items-center justify-center font-bold">
+                              {index + 1}
+                            </div>
 
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-              {item.key?.trim()}
-            </h3>
-          </div>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                              {item.key?.trim()}
+                            </h3>
+                          </div>
 
-          <p className="text-gray-600 dark:text-[#8b949e] leading-7">
-            {item.value
-              ?.replace(/<[^>]*>/g, "")
-              ?.replace(/&nbsp;/g, " ")
-              ?.trim()}
-          </p>
-        </div>
-      ))}
-    </div>
-  </section>
-)}
+                          <p className="text-gray-600 dark:text-[#8b949e] leading-7">
+                            {item.value
+                              ?.replace(/<[^>]*>/g, "")
+                              ?.replace(/&nbsp;/g, " ")
+                              ?.trim()}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
 
                 {/* Content Sections from the service.content array */}
                 {advantage && (

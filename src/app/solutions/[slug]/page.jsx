@@ -29,6 +29,11 @@ export async function generateMetadata({ params }) {
       const data = response.data;
       return {
         title: data.meta_title || `${formatSlugToTitle(slug)} Solutions | KDS International`,
+         alternates: {
+    canonical: data?.canonical_tag,
+  },
+
+  robots: data?.meta_robots_tag,
         description: data.meta_description || `Discover how our comprehensive ${formatSlugToTitle(slug)} solutions can transform your operational efficiency.`,
         keywords: data.meta_keywords || "",
       };

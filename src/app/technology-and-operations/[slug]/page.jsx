@@ -28,6 +28,11 @@ export async function generateMetadata({ params }) {
         title: data.meta_title || `${formatSlugToTitle(slug)} Technology | KDS International`,
         description: data.meta_description || `Discover how our comprehensive ${formatSlugToTitle(slug)} solutions can transform your operational efficiency.`,
         keywords: data.meta_keywords || "",
+         alternates: {
+    canonical: data?.canonical_tag,
+  },
+
+  robots: data?.meta_robots_tag,
       };
     }
   } catch (error) {

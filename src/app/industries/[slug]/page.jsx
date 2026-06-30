@@ -90,6 +90,11 @@ export async function generateMetadata({ params }) {
       title: metaTitle,
       description: metaDescription,
       keywords: metaKeyword,
+       alternates: {
+    canonical: industryData?.canonical_tag,
+  },
+
+  robots: industryData?.meta_robots_tag,
       openGraph: {
         title: metaTitle,
         description: metaDescription,

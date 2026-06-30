@@ -24,23 +24,28 @@ import {
   Fingerprint
 } from "lucide-react";
 
-// export async function generateMetadata() {
-//   const page = await getPageSEO("technology");
+export async function generateMetadata() {
+  const page = await getPageSEO("technology-and-operations");
 
-//   return {
-//     title: page?.meta_title || "KDS International",
-//     description: page?.meta_description || "",
-//     keywords: page?.meta_keywords?.split(",") || [],
-//     openGraph: {
-//       title: page?.meta_title,
-//       description: page?.meta_description,
-//       images: [{ url: `${IMAGE_URL}/${page.image}` }],
-//     },
-//     other: {
-//       "script:type": JSON.stringify(page?.meta_schema || []),
-//     },
-//   };
-// }
+  return {
+    title: page?.meta_title || "KDS International",
+    description: page?.meta_description || "",
+    keywords: page?.meta_keywords?.split(",") || [],
+     alternates: {
+    canonical: page?.canonical_tag,
+  },
+
+  robots: page?.meta_robots_tag,
+    openGraph: {
+      title: page?.meta_title,
+      description: page?.meta_description,
+      images: [{ url: `${IMAGE_URL}/${page.image}` }],
+    },
+    other: {
+      "script:type": JSON.stringify(page?.meta_schema || []),
+    },
+  };
+}
 
 const IconMap = {
   Cpu: Cpu,

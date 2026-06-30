@@ -35,6 +35,11 @@ export async function generateMetadata() {
     title: page?.meta_title || "KDS International",
     description: page?.meta_description || "",
     keywords: page?.meta_keywords?.split(",") || [],
+     alternates: {
+    canonical: page?.canonical_tag,
+  },
+
+  robots: page?.meta_robots_tag,
     openGraph: {
       title: page?.meta_title,
       description: page?.meta_description,
@@ -46,38 +51,8 @@ export async function generateMetadata() {
   };
 }
 
-// Statistics data
-const statistics = [
-  { value: "40+", label: "Years of Excellence", icon: Clock },
-  { value: "25+", label: "Countries Served", icon: Globe },
-  { value: "500+", label: "Projects Completed", icon: TrendingUp },
-  { value: "100%", label: "Zero-Defect Delivery", icon: Shield },
-];
 
-// Success stories data
-const successStories = [
-  {
-    title: "Automotive Supply Chain Optimization",
-    category: "Automotive",
-    impact: "Reduced delivery times by 40%",
-    image: "/success/automotive.jpg",
-    slug: "automotive-optimization"
-  },
-  {
-    title: "Electronics Manufacturing Scale-up",
-    category: "Electronics",
-    impact: "Increased production capacity by 200%",
-    image: "/success/electronics.jpg",
-    slug: "electronics-scaleup"
-  },
-  {
-    title: "Global Logistics Integration",
-    category: "Logistics",
-    impact: "Streamlined operations across 15 countries",
-    image: "/success/logistics.jpg",
-    slug: "global-logistics"
-  }
-];
+
 
 export default async function IndustriesPage() {
   const industries = await getData(API_ENDPOINTS.INDUSTRIES)
