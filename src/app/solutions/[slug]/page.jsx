@@ -494,10 +494,7 @@ export default async function SolutionDetailPage({ params }) {
               </div>
 
               {/* Sidebar */}
-              <aside
-                className="space-y-8 animate-fade-in-up"
-                style={{ animationDelay: "0.3s" }}
-              >
+              <aside className="space-y-8">
                 {/* Image */}
                 <div className="bg-gray-200 dark:bg-[#161b22] border border-gray-300 dark:border-white/5 rounded-3xl overflow-hidden shadow-lg h-64">
                   <img
@@ -627,10 +624,8 @@ export default async function SolutionDetailPage({ params }) {
                   </div>
                 </div>
                 {/* form */}
-                <div className="lg:col-span-5 flex justify-center mb-8">
-                  <div className="relative lg:sticky lg:top-28 w-full max-w-[500px]">
-                    <SidebarEnquiryForm serviceTitle={title} />
-                  </div>
+                <div className="relative lg:sticky lg:top-28 w-full max-w-[500px] mx-auto mb-8">
+                  <SidebarEnquiryForm serviceTitle={title} />
                 </div>
                 {/* <ConsultationCard/> */}
               </aside>

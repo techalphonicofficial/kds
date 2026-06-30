@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, User, ArrowRight, Tag } from "lucide-react";
+import { Calendar, User, ArrowRight, Tag ,  Shield} from "lucide-react";
 import { IMAGE_URL } from "@/config/api";
 
 export default function BlogCard({ post }) {
@@ -58,15 +58,7 @@ export default function BlogCard({ post }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
 
 
-          <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-[#0d1117]/80 border border-[#1565c0]/30">
-
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#1565c0]">
-
-              {post.category}
-
-            </span>
-
-          </div>
+         
 
 
         </div>
@@ -97,6 +89,16 @@ export default function BlogCard({ post }) {
               {post.author}
 
             </span>
+            <span className="flex items-center gap-2 text-[10px] font-bold uppercase text-[#4f4f4f]">
+
+              < Shield size={14} className="text-[#1565c0]" />
+
+              {post.category}
+
+            </span>
+            
+
+            
 
 
           </div>

@@ -98,7 +98,7 @@ export default function SidebarEnquiryForm({ serviceTitle }) {
           Get a Free Consultation
         </h3>
         <p className="text-gray-500 text-xs mb-4">
-          Interested in <strong>{serviceTitle}</strong>? Tell us your requirements and we will respond within 2 hours.
+          Interested in  <strong>{serviceTitle}</strong>? <br/> Tell us your requirements and we will respond within 2 hours.
         </p>
 
         <form className="space-y-3" onSubmit={handleSubmit}>
@@ -122,7 +122,7 @@ export default function SidebarEnquiryForm({ serviceTitle }) {
                   required
                   value={formData.first_name}
                   onChange={handleChange}
-                  placeholder="John"
+                  // placeholder="John"
                   className="w-full h-[42px] !pl-3 pr-10 bg-[#f5f9ff] border border-blue-100 rounded-lg text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-[#1565c0]"
                 />
               </div>
@@ -139,7 +139,7 @@ export default function SidebarEnquiryForm({ serviceTitle }) {
                   name="last_name"
                   value={formData.last_name}
                   onChange={handleChange}
-                  placeholder="Doe"
+                  // placeholder="Doe"
                   className="w-full h-[42px] !pl-3 pr-10 bg-[#f5f9ff] border border-blue-100 rounded-lg text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-[#1565c0]"
                 />
               </div>
@@ -159,7 +159,7 @@ export default function SidebarEnquiryForm({ serviceTitle }) {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="name@company.com"
+                  // placeholder="name@company.com"
                   className="w-full h-[42px] !pl-3 pr-10 bg-[#f5f9ff] border border-blue-100 rounded-lg text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-[#1565c0]"
                 />
               </div>
@@ -170,14 +170,14 @@ export default function SidebarEnquiryForm({ serviceTitle }) {
                 Enquiry Service
               </label>
               <div className="relative">
-                <Globe size={15} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1565c0]" />
+                {/* <Globe size={15} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1565c0]" /> */}
                 <input
                   type="text"
                   name="how_can_we_help"
                   value={formData.how_can_we_help}
                   onChange={handleChange}
-                  placeholder="Service description"
-                  className="w-full h-[42px] !pl-3 pr-10 bg-[#f5f9ff] border border-blue-100 rounded-lg text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-[#1565c0]"
+                  // placeholder="Service description"
+                  className="w-full h-[42px] !pl-3 !pr-3 bg-[#f5f9ff] border border-blue-100 rounded-lg text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-[#1565c0]"
                 />
               </div>
             </div>

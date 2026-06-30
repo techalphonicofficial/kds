@@ -12,6 +12,8 @@ import { FaLinkedinIn } from "react-icons/fa";
 import Link from "next/link";
 import { API_ENDPOINTS, IMAGE_URL, API_URL } from "@/config/api";
 import { getPageSEO } from "@/lib/metadata";
+import SidebarEnquiryForm from "@/components/layout/SidebarEnquiryForm";
+
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -113,7 +115,7 @@ export default async function BlogPostPage({ params }) {
   ) || false;
 
   return (
-    <main className="overflow-hidden bg-white dark:bg-[#0d1117] transition-colors duration-500">
+    <main className="overflow-x-clip bg-white dark:bg-[#0d1117] transition-colors duration-500">
 
       {/* ─── HERO SECTION ──────────────────────────────────────────────── */}
       <section className="relative  mt-5 pt-5 pb-5 hero-bg overflow-hidden">
@@ -429,7 +431,7 @@ export default async function BlogPostPage({ params }) {
               {relatedPosts.length > 0 && (
                 <div className="bg-gray-50 dark:bg-transparent !premium-glass p-4 mb-4 rounded-[2rem] border border-gray-200 dark:border-white/5 transition-colors duration-500">
                   <h3 className="text-gray-900 dark:text-white font-black text-xs uppercase tracking-[0.3em] mb-8 transition-colors duration-500">
-                    Related Analysis
+                    Related Blogs
                   </h3>
                   <div className="space-y-8">
                     {relatedPosts.map((rp) => (
@@ -448,7 +450,7 @@ export default async function BlogPostPage({ params }) {
                           {rp.title}
                         </h4>
                         <div className="flex items-center gap-2 mt-3 text-gray-600 dark:text-[#8b949e] text-[10px] font-bold uppercase tracking-widest transition-colors duration-500">
-                          <span>Read Analysis</span>
+                          <span>Read More</span>
                           <ArrowLeft
                             size={12}
                             className="rotate-180 group-hover:translate-x-1 transition-transform"
@@ -459,6 +461,10 @@ export default async function BlogPostPage({ params }) {
                   </div>
                 </div>
               )}
+
+              <div className="relative lg:sticky lg:top-28 w-full">
+                <SidebarEnquiryForm serviceTitle={blog.title} />
+              </div>
             </aside>
           </div>
         </div>
