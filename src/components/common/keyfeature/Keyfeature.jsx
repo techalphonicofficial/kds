@@ -16,7 +16,7 @@ const Keyfeature = ({ data }) => {
                 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-6"
                 style={{ fontFamily: "Outfit, sans-serif" }}
             >
-                Key Features
+                {data?.title}
             </h3>
 
 

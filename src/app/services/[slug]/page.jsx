@@ -114,6 +114,7 @@ export default async function ServiceDetailPage({ params }) {
 
     const hero_section = sections.hero_section;
     const content = sections.content_key;
+    const top_security = sections.top_security;
     const benefit = sections.benefits;
     const advantage = sections.Advantage
     const security_management = sections.security_management;
@@ -264,10 +265,10 @@ export default async function ServiceDetailPage({ params }) {
                 {/* Description */}
                 <div id="overview" className="scroll-mt-28 bg-white dark:bg-transparent premium-glass p-4 md:p-3 rounded-[2rem] border border-gray-200 dark:border-white/5 relative overflow-hidden transition-colors duration-500">
                   <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
-                    {content.title}
+                    {top_security.title}
                   </h2>
                   <p className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed transition-colors duration-500">
-                    {content.description.replace(/<[^>]*>/g, "")}
+                    {top_security.description.replace(/<[^>]*>/g, "")}
                   </p>
 
 
