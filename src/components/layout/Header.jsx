@@ -606,10 +606,8 @@ export default function Header({ services, solutions = [], technologies = [], in
             </div>
             <button
               className={clsx(
-                "lg:hidden w-10 h-10 flex items-center justify-center rounded-xl border transition-all",
-                isTransparent
-                  ? "bg-white/10 border-white/20 text-dark hover:bg-white/20"
-                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:text-[#1565c0] dark:hover:text-[#90caf9]"
+                "lg:hidden w-10 h-10 flex items-center justify-center rounded-xl border transition-all z-20",
+                "bg-[#1565c0] text-white hover:bg-[#0d47a1]"
               )}
               onClick={() => setMobileOpen((prev) => !prev)}
               aria-label="Toggle menu"
