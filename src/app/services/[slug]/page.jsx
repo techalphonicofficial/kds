@@ -28,6 +28,7 @@ import ServiceDetailLocationTabs from "@/components/ui/ServiceDetailLocationTabs
 import HeroBanner from "@/components/ui/heroBanner";
 import Keyfeature from "@/components/common/keyfeature/Keyfeature";
 import Benefits from "@/components/common/benefit/Benefits";
+import SidebarEnquiryForm from "@/components/layout/SidebarEnquiryForm";
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -559,6 +560,11 @@ export default async function ServiceDetailPage({ params }) {
                     {needService?.description?.replace(/<[^>]*>/g, "") || "Request Quote"}
                   </Button>
 
+                </div>
+
+                {/* Form */}
+                <div className="relative lg:sticky lg:top-28 w-full max-w-[500px] mx-auto mb-8">
+                  <SidebarEnquiryForm serviceTitle={service.title} />
                 </div>
               </aside>
             </div>

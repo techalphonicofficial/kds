@@ -15,6 +15,7 @@ import {
 import SectionTitle from "@/components/ui/SectionTitle";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
+import SidebarEnquiryForm from "@/components/layout/SidebarEnquiryForm";
 
 export const dynamic = "force-dynamic";
 
@@ -605,6 +606,11 @@ export default async function ServiceLocationPage({ params }) {
                     Serving {cityLabel} &amp; {stateLabel}
                   </p>
                 </div>
+              </div>
+
+              {/* Form */}
+              <div className="relative lg:sticky lg:top-28 w-full max-w-[500px] mx-auto mb-8">
+                <SidebarEnquiryForm serviceTitle={service.title} />
               </div>
             </aside>
           </div>
