@@ -250,7 +250,7 @@ export default function ServiceHero({ service, hero }) {
                                 <div className="absolute -bottom-20 -left-16 h-48 w-48 rounded-full bg-white/20 blur-3xl transition duration-700 group-hover:scale-110" />
 
                                 {/* Form */}
-                                <div className="relative p-5 md:!p-6 ">
+                                <div className="relative !p-3.5 sm:p-5 md:!p-6 ">
                                     {status === "success" ? (
                                         <div className="relative p-6 md:p-8 text-center text-white min-h-[300px] flex flex-col justify-center items-center">
                                             <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-4 border border-white/20">
@@ -270,7 +270,7 @@ export default function ServiceHero({ service, hero }) {
                                             </button>
                                         </div>
                                     ) : (
-                                        <form className="space-y-3" onSubmit={handleSubmit}>
+                                        <form className="space-y-2 sm:space-y-3" onSubmit={handleSubmit}>
                                             {status === "error" && (
                                                 <div className="p-3 bg-red-500/20 border border-red-500/30 text-red-200 rounded-xl text-xs font-semibold">
                                                     {errorMsg}
@@ -280,7 +280,7 @@ export default function ServiceHero({ service, hero }) {
                                             {enquiryFields.map(({ name, label, type, placeholder, Icon, required }, index) => (
                                                 <div
                                                     key={name}
-                                                    className="group/field grid gap-2 rounded-2xl border border-white/20 bg-white/80 p-2 shadow-sm transition-all duration-500 ease-out hover:-translate-y-1 hover:border-[#1565c0]/35 hover:bg-white hover:shadow-[0_14px_35px_rgba(13,71,161,0.16)] focus-within:-translate-y-1 focus-within:border-[#1565c0]/45 focus-within:bg-white focus-within:shadow-[0_16px_40px_rgba(13,71,161,0.18)] sm:grid-cols-[118px_1fr] sm:items-center"
+                                                    className="group/field grid gap-1 sm:gap-2 rounded-2xl border border-white/20 bg-white/80 !p-1.5 sm:p-2 shadow-sm transition-all duration-500 ease-out hover:-translate-y-1 hover:border-[#1565c0]/35 hover:bg-white hover:shadow-[0_14px_35px_rgba(13,71,161,0.16)] focus-within:-translate-y-1 focus-within:border-[#1565c0]/45 focus-within:bg-white focus-within:shadow-[0_16px_40px_rgba(13,71,161,0.18)] sm:grid-cols-[118px_1fr] sm:items-center"
                                                     style={{ animationDelay: `${index * 90}ms` }}
                                                     data-aos="fade-up"
                                                     data-aos-delay={250 + index * 90}
@@ -302,14 +302,14 @@ export default function ServiceHero({ service, hero }) {
                                                             value={formData[name]}
                                                             onChange={handleChange}
                                                             placeholder={placeholder}
-                                                            className="h-[42px] w-full rounded-xl border border-transparent bg-[#f5f9ff] !pl-4 pr-11 text-sm text-gray-800 outline-none transition-all duration-300 placeholder:text-gray-400 focus:border-[#1565c0]/40 focus:bg-white focus:ring-4 focus:ring-[#1565c0]/10"
+                                                            className="h-9 sm:h-[42px] w-full rounded-xl border border-transparent bg-[#f5f9ff] !pl-4 pr-11 text-sm text-gray-800 outline-none transition-all duration-300 placeholder:text-gray-400 focus:border-[#1565c0]/40 focus:bg-white focus:ring-4 focus:ring-[#1565c0]/10"
                                                         />
                                                     </div>
                                                 </div>
                                             ))}
 
                                             <div
-                                                className="group/field grid gap-2 rounded-2xl border border-white/20 bg-white/80 p-3 shadow-sm transition-all duration-500 ease-out hover:-translate-y-1 hover:border-[#1565c0]/35 hover:bg-white hover:shadow-[0_14px_35px_rgba(13,71,161,0.16)] focus-within:-translate-y-1 focus-within:border-[#1565c0]/45 focus-within:bg-white focus-within:shadow-[0_16px_40px_rgba(13,71,161,0.18)] sm:grid-cols-[118px_1fr]"
+                                                className="group/field grid gap-1 sm:gap-2 rounded-2xl border border-white/20 bg-white/80 p-2 sm:p-3 shadow-sm transition-all duration-500 ease-out hover:-translate-y-1 hover:border-[#1565c0]/35 hover:bg-white hover:shadow-[0_14px_35px_rgba(13,71,161,0.16)] focus-within:-translate-y-1 focus-within:border-[#1565c0]/45 focus-within:bg-white focus-within:shadow-[0_16px_40px_rgba(13,71,161,0.18)] sm:grid-cols-[118px_1fr]"
                                                 data-aos="fade-up"
                                                 data-aos-delay="620"
                                             >
@@ -329,7 +329,7 @@ export default function ServiceHero({ service, hero }) {
                                                         onChange={handleChange}
                                                         rows={3}
                                                         placeholder="Tell us your requirements..."
-                                                        className="min-h-[92px] w-full resize-none rounded-xl border border-transparent bg-[#f5f9ff] !pl-4 pr-11 pt-3 text-sm text-gray-800 outline-none transition-all duration-300 placeholder:text-gray-400 focus:border-[#1565c0]/40 focus:bg-white focus:ring-4 focus:ring-[#1565c0]/10"
+                                                        className="min-h-[70px] sm:min-h-[92px] w-full resize-none rounded-xl border border-transparent bg-[#f5f9ff] !pl-4 pr-11 pt-2 sm:pt-3 text-sm text-gray-800 outline-none transition-all duration-300 placeholder:text-gray-400 focus:border-[#1565c0]/40 focus:bg-white focus:ring-4 focus:ring-[#1565c0]/10"
                                                     />
                                                 </div>
                                             </div>
@@ -337,7 +337,7 @@ export default function ServiceHero({ service, hero }) {
                                             <button
                                                 type="submit"
                                                 disabled={status === "sending"}
-                                                className="group/submit relative mt-2 h-[50px] w-full overflow-hidden rounded-2xl bg-gradient-to-r from-[#0d47a1] via-[#1565c0] to-[#1976d2] text-sm font-black uppercase tracking-[0.14em] text-white shadow-[0_16px_35px_rgba(21,101,192,0.35)] transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-[0_22px_48px_rgba(21,101,192,0.48)] active:scale-[0.98] disabled:opacity-50"
+                                                className="group/submit relative mt-1 sm:mt-2 h-11 sm:h-[50px] w-full overflow-hidden rounded-2xl bg-gradient-to-r from-[#0d47a1] via-[#1565c0] to-[#1976d2] text-sm font-black uppercase tracking-[0.14em] text-white shadow-[0_16px_35px_rgba(21,101,192,0.35)] transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-[0_22px_48px_rgba(21,101,192,0.48)] active:scale-[0.98] disabled:opacity-50"
                                                 data-aos-delay="720"
                                             >
                                                 <span className="absolute inset-y-0 -left-1/3 w-1/3 skew-x-[-18deg] bg-white/25 transition-all duration-700 ease-out group-hover/submit:left-full" />

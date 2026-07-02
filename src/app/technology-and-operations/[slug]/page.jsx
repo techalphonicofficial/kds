@@ -28,11 +28,11 @@ export async function generateMetadata({ params }) {
         title: data.meta_title || `${formatSlugToTitle(slug)} Technology | KDS International`,
         description: data.meta_description || `Discover how our comprehensive ${formatSlugToTitle(slug)} solutions can transform your operational efficiency.`,
         keywords: data.meta_keywords || "",
-         alternates: {
-    canonical: data?.canonical_tag,
-  },
+        alternates: {
+          canonical: data?.canonical_tag,
+        },
 
-  robots: data?.meta_robots_tag,
+        robots: data?.meta_robots_tag,
       };
     }
   } catch (error) {
@@ -154,10 +154,10 @@ export default async function TechnologyDetailPage({ params }) {
 
           {/* right side content */}
           <div className="container mx-auto my-2.5 px-6 max-w-7xl ">
-            <div className="grid grid-cols-1 lg:grid-cols-2 h-[220px] md:h-[380px] overflow-hidden rounded-[1.5rem] border border-gray-200 dark:border-white/5 dark:bg-[#0d1117]  mb-3 py-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 h-auto lg:h-[380px] overflow-hidden rounded-[1.5rem] border border-gray-200 dark:border-white/5 dark:bg-[#0d1117] mb-3 ">
 
               {/* LEFT IMAGE */}
-              <div className="relative w-full h-full overflow-hidden">
+              <div className="relative w-full h-56 lg:h-full overflow-hidden">
                 <img
                   src={`${IMAGE_URL}/${overview.image || response.data.image}`}
                   alt={overview?.alt_text || title}
@@ -172,24 +172,24 @@ export default async function TechnologyDetailPage({ params }) {
               </div>
 
               {/* RIGHT CONTENT */}
-              <div className="flex flex-col justify-center px-8 md:px-14 py-10 md:py-10 relative">
+              <div className="flex flex-col justify-center !px-6 !lg:px-14 !py-8 !lg:py-10 relative">
 
                 {/* Small Label */}
-                <span className="inline-flex items-center w-fit px-4 py-1.5 mt-2  rounded-full bg-teal-600/10 text-blue-400 text-xs font-black uppercase tracking-[0.25em] mb-3">
+                <span className="inline-flex items-center w-fit px-4 py-1.5 rounded-full bg-teal-600/10 text-blue-400 text-xs font-black uppercase tracking-[0.25em] mb-3">
                   {overview.title}
                 </span>
 
                 {/* Heading */}
-                <h2 className="text-2xl  font-black text-gray-900 dark:text-white leading-tight tracking-tight mb-6">
+                <h2 className="text-xl lg:text-2xl font-black text-gray-900 dark:text-white leading-tight tracking-tight mb-4 lg:mb-6">
                   {overview?.subtitle || "Transforming Operations with"}
                   <span
-                    className="block text-blue-700 mt-1 mb-1 text-2xl"
+                    className="block text-blue-700 mt-1 mb-1 text-xl lg:text-2xl"
                     dangerouslySetInnerHTML={{ __html: overview.description ? overview.description.replace(/<\/?p>/g, '') : title }}
                   />
                 </h2>
 
                 {/* Description */}
-                <p className="text-gray-600 dark:text-[#8b949e] text-base md:text-sm leading-relaxed mb-8 max-w-xl">
+                <p className="text-gray-600 dark:text-[#8b949e] text-sm lg:text-base leading-relaxed mb-6 lg:mb-8 max-w-xl">
                   {overview?.points?.[0]?.point || ""}
                 </p>
 
@@ -248,7 +248,7 @@ export default async function TechnologyDetailPage({ params }) {
                 )}
 
                 {/* Features */}
-               <Keyfeature data={para}/>
+                <Keyfeature data={para} />
                 {/* Benefits */}
                 {benefits && (
                   <div id="benefits" className="scroll-mt-28 my-4">

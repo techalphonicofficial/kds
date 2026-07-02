@@ -22,7 +22,7 @@ export const dynamic = "force-dynamic";
 // ─── Metadata ──────────────────────────────────────────────────────────────
 export async function generateMetadata({ params }) {
   const { slug, state, city } = await params;
-  
+
   // Try to load dynamic data from API
   let apiData = null;
   try {
@@ -134,22 +134,22 @@ export default async function ServiceLocationPage({ params }) {
   const benefitsList = [
     {
       title: complianceSec?.title || "Global Compliance",
-      desc: complianceSec?.content 
-        ? complianceSec.content.replace(/<[^>]*>/g, "") 
+      desc: complianceSec?.content
+        ? complianceSec.content.replace(/<[^>]*>/g, "")
         : "Adherence to international standards and local regulations.",
       icon: Shield,
     },
     {
       title: rapidSec?.title || "Rapid Execution",
-      desc: rapidSec?.content 
-        ? rapidSec.content.replace(/<[^>]*>/g, "") 
+      desc: rapidSec?.content
+        ? rapidSec.content.replace(/<[^>]*>/g, "")
         : "Fast turnaround times without compromising on quality.",
       icon: Zap,
     },
     {
       title: expertiseSec?.title || "Certified Expertise",
-      desc: expertiseSec?.content 
-        ? expertiseSec.content.replace(/<[^>]*>/g, "") 
+      desc: expertiseSec?.content
+        ? expertiseSec.content.replace(/<[^>]*>/g, "")
         : "Work handled by certified professionals and engineers.",
       icon: Award,
     },
@@ -226,7 +226,7 @@ export default async function ServiceLocationPage({ params }) {
                 in {cityLabelText}
               </span>
             </h1>
-            <div 
+            <div
               className="text-gray-300 dark:text-[#8b949e] text-lg md:text-2xl leading-relaxed max-w-3xl italic transition-colors duration-500 service-content-html"
               dangerouslySetInnerHTML={{ __html: heroContent }}
             />
@@ -251,7 +251,7 @@ export default async function ServiceLocationPage({ params }) {
                     title={contentKeySec?.title || `${service.title} in ${cityLabel}`}
                   />
                   {contentKeySec?.content ? (
-                    <div 
+                    <div
                       className="text-gray-600 dark:text-[#8b949e] text-xl leading-relaxed mt-8 transition-colors duration-500 italic border-l-4 border-[#1565c0] ps-3 py-2 dynamic-html"
                       dangerouslySetInnerHTML={{ __html: contentKeySec.content }}
                     />
@@ -278,7 +278,7 @@ export default async function ServiceLocationPage({ params }) {
                           </h3>
                         )}
                         {precisionSec.content && (
-                          <div 
+                          <div
                             className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed dynamic-section-html"
                             dangerouslySetInnerHTML={{ __html: precisionSec.content }}
                           />
@@ -298,7 +298,7 @@ export default async function ServiceLocationPage({ params }) {
                           </h3>
                         )}
                         {vettingSec.content && (
-                          <div 
+                          <div
                             className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed dynamic-section-html"
                             dangerouslySetInnerHTML={{ __html: vettingSec.content }}
                           />
@@ -338,7 +338,7 @@ export default async function ServiceLocationPage({ params }) {
                           </h3>
                         )}
                         {paraSec.content && (
-                          <div 
+                          <div
                             className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed dynamic-section-html"
                             dangerouslySetInnerHTML={{ __html: paraSec.content }}
                           />
@@ -359,7 +359,7 @@ export default async function ServiceLocationPage({ params }) {
                           </h3>
                         )}
                         {coreCapabilitySec.content && (
-                          <div 
+                          <div
                             className="text-gray-600 dark:text-[#8b949e] text-lg leading-relaxed dynamic-section-html"
                             dangerouslySetInnerHTML={{ __html: coreCapabilitySec.content }}
                           />

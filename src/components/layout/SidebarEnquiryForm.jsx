@@ -98,7 +98,7 @@ export default function SidebarEnquiryForm({ serviceTitle }) {
           Get a Free Consultation
         </h3>
         <p className="text-gray-500 text-xs mb-4">
-          Interested in  <strong>{serviceTitle}</strong>? <br/> Tell us your requirements and we will respond within 2 hours.
+          Interested in  <strong>{serviceTitle}</strong>? <br /> Tell us your requirements and we will respond within 2 hours.
         </p>
 
         <form className="space-y-3" onSubmit={handleSubmit}>
