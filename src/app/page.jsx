@@ -215,7 +215,7 @@ export default async function HomePage() {
       {/* ══════════════════════════════════════════════
           OUR SERVICES
       ══════════════════════════════════════════════ */}
-      <section className="relative py-5 md:py-28 overflow-hidden">
+      <section className="relative py-5 md:py-28 overflow-hidden ">
 
         {/* BACKGROUND IMAGE */}
         <div className="absolute inset-0">
@@ -274,7 +274,7 @@ export default async function HomePage() {
             </div>
 
             {/* SERVICES GRID */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 ">
 
               {our_services.extra.map((service, i) => {
 
