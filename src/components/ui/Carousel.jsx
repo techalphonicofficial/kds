@@ -73,7 +73,7 @@ export default function Carousel({ data }) {
             <div className="absolute inset-0 z-30 flex items-center">
               <div className="container mx-auto !px-8 md:px-12 lg:px-24 max-w-7xl">
                 <div className="max-w-4xl space-y-6 text-left">
-                  <h2 className="!text-2xl !pt-8 !md:pt-0 !md:text-4xl text-increase font-black text-white leading-[1.1] tracking-tight drop-shadow-md font-sans">
+                  <h2 className="!text-2xl !pt-8 !md:pt-0 pb-0 md:!pb-6 md:!text-4xl text-increase font-black text-white leading-[1.1] tracking-tight drop-shadow-md font-sans">
                     {slide.title}
                   </h2>
                   <p className="text-gray-200 text-base md:text-lg lg:text-xl font-normal leading-relaxed max-w-2xl drop-shadow">
