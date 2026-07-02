@@ -686,7 +686,7 @@ export default async function HomePage() {
       {/* ══════════════════════════════════════════════
           BLOG / NEWS
       ══════════════════════════════════════════════ */}
-     
+
 
       {/* frequently asked questions */}
       <FAQSection faqs={FAQData} />

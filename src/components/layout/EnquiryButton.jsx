@@ -9,7 +9,7 @@ const EnquireButton = () => {
   return (
     <>
       {/* Sticky Enquire Button */}
-      <div className="fixed right-0 top-1/2 z-50 -translate-y-1/2">
+      <div className="fixed right-0 top-1/2 z-50 -translate-y-1/2 hidden md:block">
 
         <button
           onClick={() => setOpen(true)}

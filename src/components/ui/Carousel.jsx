@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { API_URL } from '@/config/api';
 import { IMAGE_URL } from '@/config/api';
 export default function Carousel({ data }) {
-  
+
   const slides = data?.carousel_json || [];
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -48,7 +48,7 @@ export default function Carousel({ data }) {
   }
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#06111e] group">
+    <div className="relative w-full h-[70vh] md:h-screen overflow-hidden bg-[#06111e] group">
       {/* Carousel wrapper */}
       <div className="relative w-full h-full">
         {slides.map((slide, index) => (
@@ -71,9 +71,9 @@ export default function Carousel({ data }) {
 
             {/* Text Overlay */}
             <div className="absolute inset-0 z-30 flex items-center">
-              <div className="container mx-auto px-6 md:px-12 lg:px-24 max-w-7xl">
+              <div className="container mx-auto !px-8 md:px-12 lg:px-24 max-w-7xl">
                 <div className="max-w-4xl space-y-6 text-left">
-                  <h2 className="text-4xl text-increase font-black text-white leading-[1.1] tracking-tight drop-shadow-md font-sans">
+                  <h2 className="!text-2xl !pt-8 !md:pt-0 !md:text-4xl text-increase font-black text-white leading-[1.1] tracking-tight drop-shadow-md font-sans">
                     {slide.title}
                   </h2>
                   <p className="text-gray-200 text-base md:text-lg lg:text-xl font-normal leading-relaxed max-w-2xl drop-shadow">
@@ -111,7 +111,7 @@ export default function Carousel({ data }) {
       {/* Previous button (White circle, black arrow matching the screenshot) */}
       <button
         type="button"
-        className="absolute top-1/2 left-6 z-40 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-black hover:bg-gray-100 active:scale-95 flex items-center justify-center shadow-lg transition-all"
+        className="absolute top-1/2 left-6 z-40 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-black hover:bg-gray-100 active:scale-95 flex items-center justify-center shadow-lg transition-all hidden md:block"
         onClick={handlePrev}
         aria-label="Previous Slide"
       >
@@ -133,7 +133,7 @@ export default function Carousel({ data }) {
       {/* Next button (White circle, black arrow matching the screenshot) */}
       <button
         type="button"
-        className="absolute top-1/2 right-6 z-40 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-black hover:bg-gray-100 active:scale-95 flex items-center justify-center shadow-lg transition-all"
+        className="absolute top-1/2 right-6 z-40 -translate-y-1/2 w-12 h-12 rounded-full bg-white text-black hover:bg-gray-100 active:scale-95 flex items-center justify-center shadow-lg transition-all hidden md:block"
         onClick={handleNext}
         aria-label="Next Slide"
       >
