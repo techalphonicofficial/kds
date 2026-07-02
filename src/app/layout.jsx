@@ -5,6 +5,7 @@ import { API_ENDPOINTS } from "@/config/api";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import GoogleMap from "@/components/layout/GoogleMap";
+import FloatingActionButtons from "@/components/common/FloatingActionButtons";
 import AOSInit from "@/components/common/AOSInit";
 import 'flowbite';
 
@@ -71,6 +72,7 @@ export default async function RootLayout({ children }) {
         <main className="flex-1">{children}</main>
         <GoogleMap />
         <Footer siteInfo={data.siteInfo} services={services} theme={theme} />
+        <FloatingActionButtons />
       </body>
     </html>
   );

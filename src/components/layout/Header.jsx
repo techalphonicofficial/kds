@@ -402,16 +402,16 @@ export default function Header({ services, solutions = [], technologies = [], in
                     }
 
                     const colCount = Math.min(4, Math.max(1, menuInfo.data?.length || 1));
-                    const widthClass = 
+                    const widthClass =
                       colCount === 1 ? "w-[320px]" :
-                      colCount === 2 ? "w-[600px]" :
-                      colCount === 3 ? "w-[880px]" :
-                      "w-[1140px]";
-                    const gridClass = 
+                        colCount === 2 ? "w-[600px]" :
+                          colCount === 3 ? "w-[880px]" :
+                            "w-[1140px]";
+                    const gridClass =
                       colCount === 1 ? "grid-cols-1" :
-                      colCount === 2 ? "grid-cols-2" :
-                      colCount === 3 ? "grid-cols-3" :
-                      "grid-cols-4";
+                        colCount === 2 ? "grid-cols-2" :
+                          colCount === 3 ? "grid-cols-3" :
+                            "grid-cols-4";
                     return (
                       <div
                         className={clsx(
