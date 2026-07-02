@@ -42,7 +42,7 @@ const navLinks = [
   { href: "/technology-and-operations", label: "Technology and Operations", hasMegaMenu: true },
   { href: "/services", label: "Services", hasDropdown: true },
   { href: "/industries", label: "Industries", hasMegaMenu: true },
-  { href: "/blog", label: "News & Insights" },
+  { href: "/blog", label: "Blogs" },
   { href: "/other", label: "Other", hasDropdown: true },
   { href: "/contact", label: "Contact" },
 ];
