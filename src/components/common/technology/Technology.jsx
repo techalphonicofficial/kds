@@ -47,8 +47,8 @@ const Technology = ({ data }) => {
           />
         </div>
 
-        <div className='flex w-full h-full' data-aos="fade-up" data-aos-duration="1000" data-aos-delay="150">
-          <div className='h-[500px] w-[60%] rounded-2xl overflow-hidden' data-aos="fade-right" data-aos-duration="900" data-aos-delay="180">
+        <div className='flex flex-col lg:flex-row w-full gap-6' data-aos="fade-up" data-aos-duration="1000" data-aos-delay="150">
+          <div className='h-[250px] sm:h-[350px] md:h-[450px] lg:h-[500px] w-full lg:w-[60%] rounded-2xl overflow-hidden shadow-lg' data-aos="fade-right" data-aos-duration="900" data-aos-delay="180">
             <Swiper
               modules={[Autoplay]}
               autoplay={{
@@ -60,7 +60,7 @@ const Technology = ({ data }) => {
             >
 
               {carausalData?.map((slide, index) => (
-                <SwiperSlide key={slide.key} className="h-full">
+                <SwiperSlide key={slide.key || index} className="h-full">
 
                   <img
                     src={`${IMAGE_URL}/${slide.image}`}
@@ -73,9 +73,9 @@ const Technology = ({ data }) => {
 
             </Swiper>
           </div>
-          <div className="h-[500px] w-[40%]  ">
+          <div className="w-full lg:w-[40%]">
 
-            <div className="grid grid-cols-3 h-full gap-3 ml-4 ">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 h-full">
 
               {data.extra.map((tech, index) => {
                  const Icon = icons[index % icons.length];
@@ -87,19 +87,19 @@ const Technology = ({ data }) => {
                     data-aos-duration="700"
                     data-aos-delay={`${120 + index * 80}`}
                     onClick={() => router.push('technology-and-operations')}
-                    className="border border-gray-100 flex flex-col items-center justify-center text-center bg-white hover:bg-gray-50 transition duration-500 ease-out transform rounded-2xl hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+                    className="border border-gray-100 flex flex-col items-center justify-center text-center bg-white hover:bg-gray-50 transition duration-500 ease-out transform rounded-2xl hover:-translate-y-1 hover:shadow-lg cursor-pointer p-4 min-h-[140px]"
                   >
                     {/* Circle Icon */}
-                    <div className="w-15 h-15 rounded-full bg-[#0b2c6d] flex items-center justify-center border-[6px] border-gray-100 shadow-md mb-1 transition duration-500 ease-out">
-                      <Icon size={34} className="text-white" />
+                    <div className="w-14 h-14 rounded-full bg-[#0b2c6d] flex items-center justify-center border-[4px] border-gray-100 shadow-md mb-2 transition duration-500 ease-out shrink-0">
+                      <Icon size={24} className="text-white" />
                     </div>
                     {/* Title */}
-                    <p className="!text-[14px] text-gray-800"
+                    <p className="font-bold text-xs sm:text-sm text-gray-800 leading-tight mb-1"
                       dangerouslySetInnerHTML={{
                         __html: tech.key || "",
                       }}
                     />
-                    <p className="text-xs text-slate-500 leading-relaxed hidden sm:block p-1"
+                    <p className="text-[10px] sm:text-xs text-slate-500 leading-normal hidden sm:line-clamp-2"
                       dangerouslySetInnerHTML={{
                         __html: tech.value.substring(0, 80) || "",
                       }} />

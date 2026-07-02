@@ -87,7 +87,7 @@ export default async function HomePage() {
   const FAQData = await getData(API_ENDPOINTS.FAQ);
   const homeData = await getData(API_ENDPOINTS.HOME);
   const Testimonials = await getData(API_ENDPOINTS.TESTIMONIALS)
-  console.log("testiomonials",Testimonials);
+  console.log("testiomonials", Testimonials);
   const page = await getPageSEO("home");
 
   const sections = homeData.data.sections.reduce(
@@ -160,7 +160,7 @@ export default async function HomePage() {
 
             {/* Left: Text */}
             <div className=" gap-4  w-full h-full ">
-             
+
               <img
                 src={
                   about?.image
