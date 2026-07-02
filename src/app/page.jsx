@@ -686,67 +686,7 @@ export default async function HomePage() {
       {/* ══════════════════════════════════════════════
           BLOG / NEWS
       ══════════════════════════════════════════════ */}
-      <section className="bg-gray-50 dark:bg-[#0a1628] py-5 md:py-28 transition-colors duration-500">
-        <div className="container mx-auto px-6 max-w-7xl">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-4">
-            <div className="space-y-3">
-              <span
-                className="inline-block text-[11px] font-black text-[#1565c0] dark:text-[#90caf9] uppercase tracking-[0.3em] border border-[#1565c0]/30 bg-[#1565c0]/5 px-4 py-2 rounded-full"
-                dangerouslySetInnerHTML={{
-                  __html: blogs?.title || "jhafigefuyhewfuh",
-                }}
-              />
-              <h2
-                className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white leading-tight transition-colors duration-500 mt-2"
-                style={{ fontFamily: "Outfit, sans-serif" }}
-                dangerouslySetInnerHTML={{
-                  __html: blogs?.subtitle || "jhbfgbhg",
-                }}
-              />
-            </div>
-            <Link href="/blog" className="shrink-0 inline-flex items-center gap-2 text-[#1565c0] dark:text-[#90caf9] font-bold text-sm hover:gap-3 transition-all group">
-              View All Articles <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {blogs.extra.slice(0, 3).map((post, i) => (
-              <Link key={post.key} href={`/blog/${post.url_path}`} data-aos="fade-up" data-aos-delay={i * 200}
-                className="group bg-white dark:bg-[#0d1a2d] rounded-2xl overflow-hidden border border-gray-200 dark:border-[#1565c0]/10 hover:border-[#1565c0]/40 dark:hover:border-[#1565c0]/30 transition-all duration-300 hover:shadow-xl hover:shadow-[#1565c0]/5 hover:-translate-y-1 block">
-                {/* Image */}
-                <div className="h-64 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                    style={{ backgroundImage: `url(${IMAGE_URL}/${post.image})` }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                  <div className="absolute top-4 left-4 bg-[#1565c0] text-white text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-full"
-                    dangerouslySetInnerHTML={{
-                      __html: post?.subtitle || "jhbfgbhg",
-                    }}
-                  />
-                </div>
-
-                {/* Content */}
-                <div className="p-4">
-                  <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold mb-2 transition-colors duration-300" dangerouslySetInnerHTML={{
-                    __html: post?.title || "jhbfgbhg",
-                  }} />
-                  <h3 className="text-base font-black text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-[#1565c0] dark:group-hover:text-[#90caf9] transition-colors duration-300 leading-snug"
-                    dangerouslySetInnerHTML={{
-                      __html: post?.description || "jhbfgbhg",
-                    }}
-                  />
-                  <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed mb-4 line-clamp-2 transition-colors duration-300" dangerouslySetInnerHTML={{
-                    __html: post?.subtitle || "jhbfgbhg",
-                  }} />
-                  <div className="flex items-center gap-1.5 text-[#1565c0] dark:text-[#90caf9] text-xs font-black uppercase tracking-widest">
-                    Read Article <ChevronRight size={13} className="group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+     
 
       {/* frequently asked questions */}
       <FAQSection faqs={FAQData} />
