@@ -27,7 +27,7 @@ export default function BlogCard({ post }) {
 
 
         {/* Image Area */}
-        <div className="relative h-72 rounded-2xl bg-[#0d1117] overflow-hidden mb-6 border border-white/5">
+        <div className="relative h-96 rounded-2xl bg-[#0d1117] overflow-hidden mb-6 border border-white/5">
 
 
           {

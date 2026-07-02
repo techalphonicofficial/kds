@@ -125,6 +125,8 @@ import { getBySlug } from "@/lib/data";
 import { IMAGE_URL } from "@/config/api";
 import { getData } from '@/lib/data';
 import { getPageSEO } from '@/lib/metadata';
+import StatCard from '@/components/ui/StatCard';
+import SidebarEnquiryForm from '@/components/layout/SidebarEnquiryForm';
 
 
 export async function generateMetadata() {
@@ -133,11 +135,11 @@ export async function generateMetadata() {
     title: page?.meta_title || "Careers | KDS International",
     description: page?.meta_description || "",
     keywords: page?.meta_keywords?.split(",") || [],
-     alternates: {
-    canonical: page?.canonical_tag,
-  },
+    alternates: {
+      canonical: page?.canonical_tag,
+    },
 
-  robots: page?.meta_robots_tag,
+    robots: page?.meta_robots_tag,
     openGraph: {
       title: page?.meta_title,
       description: page?.meta_description,
@@ -204,7 +206,7 @@ export default async function BlogListingPage({ searchParams }) {
   return (
     <Suspense>
 
-      <main className="overflow-hidden bg-white transition-colors duration-500">
+      <main className="overflow-x-clip bg-white transition-colors duration-500">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -327,11 +329,10 @@ export default async function BlogListingPage({ searchParams }) {
                         <Link
                           key={category.id || idx}
                           href={`/blog?category=${category.slug}`}
-                          className={`flex items-center justify-between group p-3 mb-3 rounded-xl border border-transparent transition-all ${
-                            categoryFilter === category.slug
-                              ? "border-[#1565c0]/30 bg-[#1565c0]/10 text-[#1565c0]"
-                              : "hover:border-[#1565c0]/20 hover:bg-[#1565c0]/5"
-                          }`}
+                          className={`flex items-center justify-between group p-3 mb-3 rounded-xl border border-transparent transition-all ${categoryFilter === category.slug
+                            ? "border-[#1565c0]/30 bg-[#1565c0]/10 text-[#1565c0]"
+                            : "hover:border-[#1565c0]/20 hover:bg-[#1565c0]/5"
+                            }`}
                         >
                           <span className="text-gray-700 dark:text-gray-300 font-medium text-sm group-hover:text-gray-900 dark:group-hover:text-white">
                             {category.name}
@@ -345,6 +346,15 @@ export default async function BlogListingPage({ searchParams }) {
                     </div>
                   </div>
                 )}
+                <div className="space-y-4">
+                  <StatCard stat={{ key: "Workers Placed", value: "500+" }} />
+                  <StatCard stat={{ key: "Satisfied Clients", value: "200+" }} />
+                  <StatCard stat={{ key: "Projects Completed", value: "150+" }} />
+                </div>
+
+                <div className="relative md:sticky md:top-28 w-full mt-8">
+                  <SidebarEnquiryForm serviceTitle="Blog" />
+                </div>
               </aside>
             </div>
           </div>

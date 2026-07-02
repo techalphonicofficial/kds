@@ -3,8 +3,9 @@ import { getServerData } from "@/lib/data";
 import { notFound } from "next/navigation";
 import ServiceHero from "@/components/ui/ServiceHero";
 import { API_ENDPOINTS } from "@/config/api";
-import { getBySlug } from "@/lib/data";
+import { getBySlug, getData } from "@/lib/data";
 import { IMAGE_URL } from "@/config/api";
+import FAQSection from '@/components/common/FAQ'
 import {
   CheckCircle,
   ArrowRight,
@@ -104,6 +105,7 @@ export default async function ServiceDetailPage({ params }) {
 
 
     const response = await getBySlug(API_ENDPOINTS.SERVICES_SLUG, slug);
+    const FAQData = await getData(API_ENDPOINTS.FAQ);
     const sections = response.data.sections.reduce(
       (acc, section) => {
         acc[section.section_key] = section;
@@ -603,8 +605,9 @@ export default async function ServiceDetailPage({ params }) {
 
 
           </div>
-        </section>
 
+        </section>
+        <FAQSection faqs={FAQData} />
       </main>
     );
   } catch (error) {

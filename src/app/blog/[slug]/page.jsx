@@ -43,11 +43,11 @@ export async function generateMetadata({ params }) {
       title: metaTitle,
       description: metaDescription,
       keywords: metaKeyword,
-       alternates: {
-    canonical: post?.canonical_tag,
-  },
+      alternates: {
+        canonical: post?.canonical_tag,
+      },
 
-  robots: post?.meta_robots_tag,
+      robots: post?.meta_robots_tag,
       openGraph: {
         title: metaTitle,
         description: metaDescription,
